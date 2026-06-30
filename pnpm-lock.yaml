@@ -127,6 +127,9 @@ importers:
       '@types/node':
         specifier: ^22.20.0
         version: 22.20.0
+      '@visora/vite-plugin':
+        specifier: file:../vite-plugin
+        version: file:packages/vite-plugin(vite@5.4.21(@types/node@22.20.0))
       tsup:
         specifier: ^8.5.1
         version: 8.5.1(postcss@8.5.16)(typescript@5.9.3)
@@ -957,6 +960,11 @@ packages:
 
   '@types/react@18.3.31':
     resolution: {integrity: sha512-vfEqpXTvwT91yhmwdfouStN2hSKwTvyRs8qpLfADyrq/kxDw0hZM7Wk9Ug1FELj8hIby+S/+kQCSRFF32nv2Qw==}
+
+  '@visora/vite-plugin@file:packages/vite-plugin':
+    resolution: {directory: packages/vite-plugin, type: directory}
+    peerDependencies:
+      vite: ^5.0.0 || ^6.0.0
 
   '@vitejs/plugin-react@4.7.0':
     resolution: {integrity: sha512-gUu9hwfWvvEDBBmgtAowQCojwZmJ5mcLn3aufeCsitijs3+f2NsrPtlAWIR6OPiqljl96GVCUbLe0HyqIpVaoA==}
@@ -2472,6 +2480,11 @@ snapshots:
     dependencies:
       '@types/prop-types': 15.7.15
       csstype: 3.2.3
+
+  '@visora/vite-plugin@file:packages/vite-plugin(vite@5.4.21(@types/node@22.20.0))':
+    dependencies:
+      '@visora/shared': link:packages/shared
+      vite: 5.4.21(@types/node@22.20.0)
 
   '@vitejs/plugin-react@4.7.0(vite@5.4.21(@types/node@22.20.0))':
     dependencies:
