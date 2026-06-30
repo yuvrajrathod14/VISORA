@@ -1,45 +1,72 @@
-# 🔮 Visora
+<div align="center">
+  <img src="https://raw.githubusercontent.com/yuvrajrathod14/VISORA/main/apps/demo/public/favicon.ico" alt="Visora Logo" width="120" height="120" style="border-radius: 20px; margin-bottom: 20px;" />
+  
+  # 🔮 VISORA
+  
+  **The Visual Context Engine for AI Coding.**
+  
+  [![Made by Visionatrix](https://img.shields.io/badge/Made%20by-Visionatrix-8B5CF6?style=for-the-badge)](https://visionatrix.com)
+  [![Developer](https://img.shields.io/badge/Developer-Yuvraj%20Rathod-10B981?style=for-the-badge)](#)
+  [![License](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
 
-**The visual context engine for AI coding.** 
-Edit UI by clicking, not describing.
-
-Visora bridges the gap between what you see in the browser and what your AI coding assistant (Cursor, Windsurf, Antigravity) knows about your code. Instead of copying and pasting code, explaining where the file is, and describing what the UI looks like—you simply **Alt+Click** a component in your running app, type an instruction, and Visora handles the rest.
+  *Edit your UI by clicking, not describing.*
+</div>
 
 ---
 
-## 🚀 How to Try Visora (Local Demo)
+## 📖 Overview
 
-Since Visora is currently a monorepo workspace, the easiest way to try it out is to clone this repository and run the built-in demo app.
+Visora bridges the critical gap between what you see in the browser and what your AI coding assistant (Cursor, Windsurf, Copilot) knows about your code. 
 
-1. **Clone and Install**
-   ```bash
-   git clone https://github.com/yuvrajrathod14/VISORA.git
-   cd VISORA
-   pnpm install
-   ```
+Instead of copying and pasting code snippets, explaining file paths, and describing UI elements—you simply **Alt+Click** any component in your running application, type a natural language instruction, and let Visora handle the rest.
 
-2. **Build the Core Packages**
-   ```bash
-   pnpm --filter "@visora/*" build
-   ```
+A proud product of **[Visionatrix](#)**, developed by **Yuvraj Rathod**.
 
-3. **Start the Demo App**
-   ```bash
-   pnpm dev
-   ```
-   *Open `http://localhost:5174/` in your browser. You will see the Visora overlay in the bottom left corner.*
+---
+
+## ✨ Features
+
+- **🎯 Precision Visual Selection:** Hover and click any component in your running React app. Visora highlights it instantly and binds it to the exact source file and line info.
+- **🧬 Deep AST Context:** Automatically extracts React Fiber data, including component names, props, and hierarchical DOM structures.
+- **⚡ Multi-Action Queue:** Queue up dozens of UI modifications simultaneously without breaking your flow.
+- **🤖 Autonomous Patcher Daemon:** A standalone background CLI agent that connects to Anthropic, OpenAI, Gemini, or Ollama to automatically write and inject code patches.
+- **🔌 Native MCP Server:** Seamlessly plug Visora into Cursor or Windsurf to allow your IDE to read the visual context queue directly.
+
+---
+
+## 🚀 Getting Started (Local Development)
+
+Since Visora is currently structured as a modern monorepo workspace, you can easily try it out by running the built-in demo application.
+
+### 1. Clone & Install
+```bash
+git clone https://github.com/yuvrajrathod14/VISORA.git
+cd VISORA
+pnpm install
+```
+
+### 2. Build Core Packages
+```bash
+pnpm --filter "@visora/*" build
+```
+
+### 3. Start the Demo App
+```bash
+pnpm dev
+```
+*Navigate to `http://localhost:5174/` in your browser. The Visora overlay will be active in the bottom left corner.*
 
 ---
 
 ## 🛠️ The Dual-Workflow Architecture
 
-Visora gives you two completely different ways to use the instructions you queue up in the browser.
+Visora is designed for absolute flexibility, offering two professional workflows depending on your AI preferences.
 
-### Workflow A: The Autonomous Daemon (Background AI)
-Don't want to use an IDE chat? Visora comes with a built-in, standalone CLI agent that runs in the background and writes code for you automatically.
+### Workflow A: The Autonomous Daemon
+Visora comes with a built-in CLI agent that runs in the background and edits files autonomously.
 
 1. **Configure your AI Provider:**
-   Create a `.env` file in the root of the repository and add **one** of the following:
+   Create a `.env` file in the root directory and add **one** of the following:
    ```env
    ANTHROPIC_API_KEY=sk-ant-...
    # OR
@@ -48,52 +75,42 @@ Don't want to use an IDE chat? Visora comes with a built-in, standalone CLI agen
    GEMINI_API_KEY=AIzaSy...
    # OR
    OLLAMA_URL=http://localhost:11434
+   OLLAMA_MODEL=llama3
    ```
 
-2. **Run the Patcher:**
+2. **Run the Daemon:**
    ```bash
    pnpm visora
    ```
-3. **Watch it work:** Go to your browser, Alt+Click any component, type an instruction (e.g., "Make this button glassmorphism"), and watch the terminal. The daemon will instantly pick it up, talk to the AI, and patch your source files!
+3. **Queue Instructions:** Alt+Click components in your browser, type what you want to change, and watch the daemon instantly patch your source code.
 
 ### Workflow B: The MCP Server (IDE Integration)
-If you prefer using **Cursor**, **Windsurf**, or **Antigravity**, you can plug Visora directly into your IDE's brain.
+If you prefer using **Cursor** or **Windsurf**, you can plug Visora directly into your IDE's brain.
 
-1. **Add the MCP Server to Cursor/Windsurf:**
+1. **Configure MCP:**
    - Go to MCP Settings in your IDE.
    - Add a new `command` server named `visora`.
    - Command: `node`
    - Args: `/absolute/path/to/VISORA/packages/mcp-server/dist/index.js`
    - Env: `VISORA_PROJECT_ROOT=/absolute/path/to/VISORA`
 
-2. **Use it in Chat:**
-   Queue up a bunch of instructions in the browser, then go to your IDE chat and say: 
-   > *"Process my Visora queue"*
-   
-   Your IDE will automatically pull all pending tasks, fetch their exact AST data and source code context, and write the code interactively.
+2. **Use the Queue:**
+   Queue up instructions in the browser, then tell your IDE chat: *"Process my Visora queue"*. The IDE will autonomously pull tasks, fetch the enriched AST context, and write the code.
 
 ---
 
-## 📦 How to use Visora in your OWN Projects (Coming Soon)
+## ©️ Legal & Copyright
 
-Visora is preparing for publication to NPM. Soon, you will be able to add it to any React/Vite project in seconds:
+**VISORA™** is a registered trademark and flagship product of **Visionatrix**.
 
-```bash
-npm install -D @visora/vite-plugin
-```
+- **Lead Developer & Architect:** Yuvraj Rathod
+- **Company:** Visionatrix
+- **Copyright:** © 2026 Visionatrix. All Rights Reserved.
 
-**vite.config.ts:**
-```ts
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-import visora from '@visora/vite-plugin';
-
-export default defineConfig({
-  plugins: [react(), visora()]
-});
-```
-
-*(For now, if you want to use it in your own project, you can use `npm link` or `pnpm link` to symlink the local packages from this monorepo into your project!)*
+### License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details. By using, distributing, or contributing to this project, you agree to the terms and conditions outlined in the license.
 
 ---
-**Built with 💜 for the Agentic Coding Era.**
+<div align="center">
+  <i>Built with 💜 for the Agentic Coding Era by Visionatrix.</i>
+</div>
