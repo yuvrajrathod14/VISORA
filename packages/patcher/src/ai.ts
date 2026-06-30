@@ -96,7 +96,13 @@ Reply ONLY with a JSON object in this exact format (no markdown, no reasoning):
           stream: false
         })
       });
-      const data = await response.json() as { response: string };
+      const data = await response.json() as any;
+      if (data.error) {
+        throw new Error(`Ollama Error: ${data.error}`);
+      }
+      if (typeof data.response !== 'string') {
+        throw new Error(`Unexpected Ollama response format: ${JSON.stringify(data)}`);
+      }
       return parseAIResponse(data.response);
     } catch (e: any) {
       throw new Error(`Failed to connect to Ollama at ${process.env.OLLAMA_URL}: ${e.message}`);
@@ -106,16 +112,33 @@ Reply ONLY with a JSON object in this exact format (no markdown, no reasoning):
   throw new Error("No AI Provider configured. Please set ANTHROPIC_API_KEY, OPENAI_API_KEY, GEMINI_API_KEY, or OLLAMA_URL in your .env file.");
 }
 
-function parseAIResponse(text: string): PatchResult | null {
+function parseAIResponse(text: string | undefined): PatchResult | null {
+  if (!text) {
+    console.error("  [visora] AI response was empty or undefined.");
+    return null;
+  }
   try {
-    // Sometimes the AI wraps the JSON in markdown blocks
-    const jsonStr = text.replace(/^```json/m, '').replace(/^```/m, '').trim();
+    // Extract JSON block even if the AI hallucinates conversational text before/after
+    const start = text.indexOf('{');
+    const end = text.lastIndexOf('}');
+    
+    if (start === -1 || end === -1 || end < start) {
+      console.error("  [visora] Failed to find a valid JSON object in the AI response.");
+      console.error("  Raw Output:", text.slice(0, 200) + '...');
+      return null;
+    }
+    
+    const jsonStr = text.slice(start, end + 1);
     const result = JSON.parse(jsonStr);
+    
     if (result.filePath && result.originalContent && result.modifiedContent) {
       return result;
+    } else {
+      console.error("  [visora] AI JSON is missing required fields (filePath, originalContent, modifiedContent).");
     }
   } catch (e) {
-    console.error("Failed to parse AI JSON response:", text);
+    console.error("  [visora] Failed to parse AI JSON response. Error:", e);
+    console.error("  Raw Output:", text.slice(0, 200) + '...');
   }
   return null;
 }
