@@ -5,10 +5,7 @@ export default function Hero() {
         <span className="highlight">New</span> Introducing Visora v1.0
       </div>
       
-      <h1 className="animate__animated animate__bounceInDown">
-        Edit UI by <span className="gradient-text">Clicking</span>,<br />
-        Not Describing
-      </h1>
+      <h1>YUVRAJ RATHOD</h1>
       
       <p className="hero-subtitle">
         The visual context engine for AI coding. Click any component in your running
@@ -17,8 +14,8 @@ export default function Hero() {
       </p>
       
       <div className="hero-actions">
-        <button className="btn-primary" id="hero-start-btn">
-          Start Building
+        <button className="btn-primary" id="hero-start-btn" onClick={() => console.log('Button clicked!')}>
+          <span className="animate-bounce">Start Building</span>
         </button>
         <button className="btn-secondary" id="hero-demo-btn">
           Watch Demo

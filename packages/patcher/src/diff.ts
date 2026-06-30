@@ -40,6 +40,33 @@ function printDiff(originalContent: string, modifiedContent: string) {
   console.log();
 }
 
+function saveHistory(appRoot: string, filePath: string, previousContent: string) {
+  try {
+    const visoraDir = path.join(appRoot, '.visora');
+    if (!fs.existsSync(visoraDir)) fs.mkdirSync(visoraDir, { recursive: true });
+    
+    const historyPath = path.join(visoraDir, 'history.json');
+    let history: any[] = [];
+    if (fs.existsSync(historyPath)) {
+      history = JSON.parse(fs.readFileSync(historyPath, 'utf-8'));
+    }
+    
+    // Push the state before the change
+    history.push({
+      filePath,
+      timestamp: Date.now(),
+      previousContent
+    });
+    
+    // Keep only the last 20 changes to avoid bloat
+    if (history.length > 20) history = history.slice(-20);
+    
+    fs.writeFileSync(historyPath, JSON.stringify(history, null, 2));
+  } catch (e) {
+    console.error(chalk.yellow(`  Warning: Failed to save rollback history: ${(e as Error).message}`));
+  }
+}
+
 export function applyPatch(
   appRoot: string,
   filePath: string,
@@ -57,8 +84,9 @@ export function applyPatch(
 
   // Exact match replacement
   if (source.includes(originalContent)) {
-    source = source.replace(originalContent, modifiedContent);
-    fs.writeFileSync(fullPath, source, 'utf-8');
+    const newSource = source.replace(originalContent, modifiedContent);
+    saveHistory(appRoot, filePath, source);
+    fs.writeFileSync(fullPath, newSource, 'utf-8');
     printDiff(originalContent, modifiedContent);
     return true;
   }
@@ -68,6 +96,7 @@ export function applyPatch(
   if (normalize(source).includes(normalize(originalContent))) {
     const normalizedSource = source.replace(/\r\n/g, '\n');
     const newSource = normalizedSource.replace(normalize(originalContent), modifiedContent);
+    saveHistory(appRoot, filePath, source);
     fs.writeFileSync(fullPath, newSource, 'utf-8');
     printDiff(originalContent, modifiedContent);
     return true;

@@ -95,6 +95,7 @@ function showHelp() {
   console.log(`    ${ACCENT('visora')} ${DIM('--config')}       Re-configure your AI provider`);
   console.log(`    ${ACCENT('visora')} ${DIM('--status')}       Show queue status across workspace`);
   console.log(`    ${ACCENT('visora')} ${DIM('--clear')}        Clear completed/failed tasks`);
+  console.log(`    ${ACCENT('visora')} ${DIM('--undo')}         Undo the last successful AI patch`);
   console.log(`    ${ACCENT('visora')} ${DIM('--help')}         Show this help message`);
   console.log(`    ${ACCENT('visora')} ${DIM('--version')}      Show version`);
   console.log();
@@ -144,7 +145,7 @@ function showStatus() {
   console.log();
 
   const queueFiles = findQueueFiles(projectRoot);
-  
+
   if (queueFiles.length === 0) {
     console.log(DIM('  No queue files found. Start your Vite app and Alt+Click a component.'));
     console.log();
@@ -160,7 +161,7 @@ function showStatus() {
     try {
       const queue = JSON.parse(fs.readFileSync(qPath, 'utf-8'));
       const relPath = path.relative(projectRoot, qPath);
-      
+
       const pending = queue.filter((t: any) => t.status === 'pending').length;
       const processing = queue.filter((t: any) => t.status === 'processing').length;
       const done = queue.filter((t: any) => t.status === 'done').length;
@@ -211,12 +212,55 @@ function clearQueues() {
 }
 
 // ═══════════════════════════════════════════════════════════
+// COMMAND: --undo
+// ═══════════════════════════════════════════════════════════
+function undoLastPatch() {
+  printBanner();
+  const historyPath = path.join(projectRoot, '.visora', 'history.json');
+  
+  if (!fs.existsSync(historyPath)) {
+    console.log(FAIL('  No patch history found in this workspace.'));
+    console.log();
+    process.exit(1);
+  }
+
+  try {
+    let history: any[] = JSON.parse(fs.readFileSync(historyPath, 'utf-8'));
+    if (history.length === 0) {
+      console.log(FAIL('  No patches to undo.'));
+      console.log();
+      process.exit(1);
+    }
+    
+    const lastChange = history.pop();
+    const fullPath = path.join(projectRoot, lastChange.filePath);
+    
+    if (fs.existsSync(fullPath)) {
+      fs.writeFileSync(fullPath, lastChange.previousContent, 'utf-8');
+      fs.writeFileSync(historyPath, JSON.stringify(history, null, 2));
+      console.log(SUCCESS(`  ✔ Undid the last patch to ${INFO(lastChange.filePath)}`));
+      console.log();
+    } else {
+      console.log(FAIL(`  Could not find file: ${lastChange.filePath}`));
+      console.log();
+      process.exit(1);
+    }
+  } catch (e) {
+    console.log(FAIL('  Failed to read history or restore file.'));
+    console.log();
+    process.exit(1);
+  }
+  process.exit(0);
+}
+
+// ═══════════════════════════════════════════════════════════
 // ROUTE CLI COMMANDS
 // ═══════════════════════════════════════════════════════════
 if (args.includes('--help') || args.includes('-h')) showHelp();
 if (args.includes('--version') || args.includes('-v')) showVersion();
 if (args.includes('--status') || args.includes('-s')) showStatus();
 if (args.includes('--clear')) clearQueues();
+if (args.includes('--undo') || args.includes('-u')) undoLastPatch();
 
 const forceConfig = args.includes('--config') || args.includes('--setup');
 
@@ -243,9 +287,9 @@ const processingQueues = new Set<string>();
 
 async function processQueue(targetQueuePath: string) {
   if (processingQueues.has(targetQueuePath)) return;
-  
+
   if (!fs.existsSync(targetQueuePath)) return;
-  
+
   let queue: any[] = [];
   try {
     queue = JSON.parse(fs.readFileSync(targetQueuePath, 'utf-8'));
@@ -254,11 +298,11 @@ async function processQueue(targetQueuePath: string) {
   }
 
   const pendingTasks = queue.filter(t => t.status === 'pending');
-  
+
   if (pendingTasks.length === 0) return;
-  
+
   processingQueues.add(targetQueuePath);
-  
+
   if (isIdle) {
     isIdle = false;
   }
@@ -269,7 +313,7 @@ async function processQueue(targetQueuePath: string) {
 
     console.log(ACCENT(`  ● Task`), chalk.white(`"${task.selection.instruction}"`));
     console.log(DIM(`    ${target} → ${file}`));
-    
+
     task.status = 'processing';
     fs.writeFileSync(targetQueuePath, JSON.stringify(queue, null, 2));
 
@@ -284,34 +328,34 @@ async function processQueue(targetQueuePath: string) {
 
     try {
       const appRoot = path.dirname(path.dirname(targetQueuePath));
-      
+
       const patch = await generatePatch(task, appRoot);
       const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
-      
+
       if (patch && patch.modifiedContent) {
-         spinner.text = DIM(`Writing to ${patch.filePath}…`);
-         
-         const success = applyPatch(appRoot, patch.filePath, patch.originalContent, patch.modifiedContent);
-         if (success) {
-           spinner.succeed(SUCCESS(`Patched ${patch.filePath}`) + DIM(` (${elapsed}s)`));
-           task.status = 'done';
-         } else {
-           spinner.fail(FAIL(`Patch conflict in ${patch.filePath}`) + DIM(` (${elapsed}s)`));
-           task.status = 'failed';
-         }
+        spinner.text = DIM(`Writing to ${patch.filePath}…`);
+
+        const success = applyPatch(appRoot, patch.filePath, patch.originalContent, patch.modifiedContent);
+        if (success) {
+          spinner.succeed(SUCCESS(`Patched ${patch.filePath}`) + DIM(` (${elapsed}s)`));
+          task.status = 'done';
+        } else {
+          spinner.fail(FAIL(`Patch conflict in ${patch.filePath}`) + DIM(` (${elapsed}s)`));
+          task.status = 'failed';
+        }
       } else {
-         spinner.fail(FAIL(`No valid patch from AI`) + DIM(` (${elapsed}s)`));
-         task.status = 'failed';
+        spinner.fail(FAIL(`No valid patch from AI`) + DIM(` (${elapsed}s)`));
+        task.status = 'failed';
       }
     } catch (e: any) {
       spinner.fail(FAIL(e.message));
       task.status = 'failed';
     }
-    
+
     fs.writeFileSync(targetQueuePath, JSON.stringify(queue, null, 2));
     console.log();
   }
-  
+
   processingQueues.delete(targetQueuePath);
   if (processingQueues.size === 0) {
     isIdle = true;
@@ -323,9 +367,9 @@ async function processQueue(targetQueuePath: string) {
 const initialQueues = findQueueFiles(projectRoot);
 initialQueues.forEach(qPath => {
   processQueue(qPath);
-  
+
   // Watch this specific file reliably
-  chokidar.watch(qPath, { 
+  chokidar.watch(qPath, {
     persistent: true,
     ignoreInitial: true
   }).on('change', () => {
@@ -334,7 +378,7 @@ initialQueues.forEach(qPath => {
 });
 
 // Also watch for newly created .visora/queue.json files in case Vite is started after Visora
-chokidar.watch('**/.visora/queue.json', { 
+chokidar.watch('**/.visora/queue.json', {
   cwd: projectRoot,
   persistent: true,
   ignoreInitial: true,
