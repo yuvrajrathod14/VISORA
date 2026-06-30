@@ -1,0 +1,29 @@
+{
+  "name": "@visora/vite-plugin",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build:overlay": "esbuild src/overlay.ts --bundle --outfile=dist/overlay.js --format=iife --minify",
+    "build": "pnpm build:overlay && tsc"
+  },
+  "dependencies": {
+    "@visora/shared": "workspace:*"
+  },
+  "peerDependencies": {
+    "vite": "^5.0.0 || ^6.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0",
+    "vite": "^5.4.11",
+    "html-to-image": "^1.11.11",
+    "esbuild": "^0.21.5"
+  }
+}
