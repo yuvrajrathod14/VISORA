@@ -20,7 +20,7 @@ export default function HowToUse() {
             <pre>
               <code>
 <span className="code-comment"># First time? The wizard will ask for your API key:</span>
-pnpm visora
+npx visora-cli
 
 <span className="code-comment"># Or set it manually in .env:</span>
 ANTHROPIC_API_KEY=sk-ant-...
@@ -71,8 +71,8 @@ Env:     VISORA_PROJECT_ROOT=/path/to/VISORA
           <div className="code-block">
             <pre>
               <code>
-<span className="code-comment"># 1. Install the Vite Plugin into your project</span>
-npm install -D /path/to/VISORA/packages/vite-plugin
+<span className="code-comment"># 1. Initialize Visora in your project</span>
+npx visora-cli init
 
 <span className="code-comment"># 2. Add to vite.config.ts</span>
 import visora from 'visora-vite-plugin';
@@ -100,27 +100,27 @@ export default defineConfig({`{`}
             <pre>
               <code>
 <span className="code-comment"># Start the autonomous daemon</span>
-pnpm visora
+npx visora-cli
 
 <span className="code-comment"># Re-configure your AI provider</span>
-pnpm visora --config
+npx visora-cli --config
 
 <span className="code-comment"># Show queue status across workspace</span>
-pnpm visora --status
+npx visora-cli --status
 
 <span className="code-comment"># Clear completed/failed tasks</span>
-pnpm visora --clear
+npx visora-cli --clear
 
 <span className="code-comment"># Show full help page</span>
-pnpm visora --help
+npx visora-cli --help
 
 <span className="code-comment"># Show version</span>
-pnpm visora --version
+npx visora-cli --version
               </code>
             </pre>
           </div>
           <p className="step-footer">
-            Run <strong>pnpm visora --help</strong> at any time for the complete usage guide, supported env vars, and step-by-step instructions.
+            Run <strong>npx visora-cli --help</strong> at any time for the complete usage guide, supported env vars, and step-by-step instructions.
           </p>
         </div>
       </div>

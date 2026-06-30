@@ -86,7 +86,7 @@ Navigate to `http://localhost:3000/`.
 
 ### 4. Start the Autonomous Daemon
 ```bash
-npx visora
+npx visora-cli
 ```
 If this is your first time, Visora will launch an **interactive setup wizard** that asks you to choose your AI provider (Anthropic, OpenAI, Gemini, or Ollama) and securely saves it to `.env`.
 
@@ -108,7 +108,7 @@ Once it's hooked, using Visora is just 2 simple steps:
 
 **Step 1. Run the Daemon (in any terminal)**
 ```bash
-npx visora
+npx visora-cli
 ```
 
 **Step 2. Start Your App (in your project folder)**
@@ -125,14 +125,14 @@ The Visora CLI is a professional-grade developer tool with full command support.
 
 | Command | Description |
 |---|---|
-| `npx visora` | Start the daemon (watches for UI instructions) |
-| `npx visora --config` | Re-configure your AI provider interactively |
-| `npx visora --status` | Show queue status across the entire workspace |
-| `npx visora --clear` | Remove all completed/failed tasks from queues |
-| `npx visora --purge` | Delete all Visora data, queues, screenshots, and history |
-| `npx visora --undo` | Undo the last successful AI patch |
-| `npx visora --help` | Display the full help page with usage & env vars |
-| `npx visora --version` | Print version number |
+| `npx visora-cli` | Start the daemon (watches for UI instructions) |
+| `npx visora-cli --config` | Re-configure your AI provider interactively |
+| `npx visora-cli --status` | Show queue status across the entire workspace |
+| `npx visora-cli --clear` | Remove all completed/failed tasks from queues |
+| `npx visora-cli --purge` | Delete all Visora data, queues, screenshots, and history |
+| `npx visora-cli --undo` | Undo the last successful AI patch |
+| `npx visora-cli --help` | Display the full help page with usage & env vars |
+| `npx visora-cli --version` | Print version number |
 
 ### Environment Variables
 
@@ -147,27 +147,14 @@ The Visora CLI is a professional-grade developer tool with full command support.
 
 ---
 
-## 📦 Use Visora in Your Own Project
 
-Since Visora is not yet published to NPM, you can use our 1-click installer to automatically link it into any Vite/React project.
-
-### Automated Installer
-
-Run the initialization script from the root of your Vite or Next.js project. Visora will automatically detect your framework, install the correct engines, and patch your configuration file (`vite.config.ts` or `app/layout.tsx`).*
-
-### Step 2: Start Coding!
-1. Start your live project (`npm run dev`).
-2. The Visora overlay will appear. Alt+Click components to queue instructions!
-3. Run `npx visora` in a second terminal to process the queue.
-
----
 
 ## 🛠️ The Dual-Workflow Architecture
 
 Visora offers two professional workflows depending on your preference.
 
 ### Workflow A: The Autonomous Daemon
-Run `pnpm visora` in a terminal. The daemon watches for instructions in the `.visora/queue.json` file and autonomously generates and applies code patches using your configured AI provider.
+Run `npx visora-cli` in a terminal. The daemon watches for instructions in the `.visora/queue.json` file and autonomously generates and applies code patches using your configured AI provider.
 
 ### Workflow B: The MCP Server (IDE Integration)
 Connect your AI IDE (Cursor, Windsurf) to the Visora MCP server for interactive, IDE-integrated coding.
