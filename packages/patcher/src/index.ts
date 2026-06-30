@@ -404,10 +404,13 @@ const initialQueues = findQueueFiles(projectRoot);
 initialQueues.forEach(qPath => {
   processQueue(qPath);
 
-  // Watch this specific file reliably
+  // Watch this specific file reliably with aggressive polling for instant response
   chokidar.watch(qPath, {
     persistent: true,
-    ignoreInitial: true
+    ignoreInitial: true,
+    usePolling: true,
+    interval: 100,
+    binaryInterval: 300
   }).on('change', () => {
     processQueue(qPath);
   });
@@ -418,9 +421,11 @@ chokidar.watch('**/.visora/queue.json', {
   cwd: projectRoot,
   persistent: true,
   ignoreInitial: true,
-  ignored: ['**/node_modules/**', '**/dist/**']
+  ignored: ['**/node_modules/**', '**/dist/**'],
+  usePolling: true,
+  interval: 500
 }).on('add', (relativePath) => {
   const fullPath = path.join(projectRoot, relativePath);
-  chokidar.watch(fullPath, { persistent: true }).on('change', () => processQueue(fullPath));
+  chokidar.watch(fullPath, { persistent: true, usePolling: true, interval: 100 }).on('change', () => processQueue(fullPath));
   processQueue(fullPath);
 });
