@@ -131,8 +131,15 @@ export default function visoraPlugin(options: VisoraPluginOptions = {}): Plugin 
     },
 
     configureServer(server: ViteDevServer) {
+      const queuePath = path.join(projectRoot, contextDirName, 'queue.json');
+
       ensureContextDir();
       initContextFile();
+      
+      // Initialize queue file if missing
+      if (!fs.existsSync(queuePath)) {
+        fs.writeFileSync(queuePath, JSON.stringify([]));
+      }
 
       // Serve the overlay client script
       server.middlewares.use('/@visora/overlay.js', (_req, res) => {
@@ -157,22 +164,52 @@ export default function visoraPlugin(options: VisoraPluginOptions = {}): Plugin 
             try {
               const payload = JSON.parse(body);
 
-              // Extract screenshot base64 if present, and save as file to keep context.json lightweight
+              const id = Date.now().toString();
+              
+              // Extract screenshot base64 if present, and save as unique file
               if (payload.screenshotBase64) {
                 const base64Data = payload.screenshotBase64.replace(/^data:image\/png;base64,/, "");
-                fs.writeFileSync(path.join(projectRoot, contextDirName, 'screenshot.png'), base64Data, 'base64');
+                const screenFileName = `screenshot_${id}.png`;
+                fs.writeFileSync(path.join(projectRoot, contextDirName, screenFileName), base64Data, 'base64');
                 delete payload.screenshotBase64;
-                payload.screenshotFile = '.visora/screenshot.png';
+                payload.screenshotFile = `.visora/${screenFileName}`;
               }
 
+              // Also maintain backwards compatibility for the active selection
               const contextData: VisoraContextFile = {
                 selection: payload,
                 updatedAt: new Date().toISOString(),
               };
               fs.writeFileSync(contextPath, JSON.stringify(contextData, null, 2));
-              console.log(
-                `\x1b[35m[visora]\x1b[0m selection updated → \x1b[36m${payload.sourceFile || 'unknown'}\x1b[0m`
-              );
+
+              if (payload.instruction) {
+                // Append to Multi-Action Queue
+                let queue: any[] = [];
+                try {
+                  if (fs.existsSync(queuePath)) {
+                    queue = JSON.parse(fs.readFileSync(queuePath, 'utf-8'));
+                  }
+                } catch (e) {
+                  // ignore parse error, reset queue
+                }
+                
+                queue.push({
+                  id,
+                  status: 'pending',
+                  createdAt: new Date().toISOString(),
+                  selection: payload
+                });
+                
+                fs.writeFileSync(queuePath, JSON.stringify(queue, null, 2));
+                
+                console.log(
+                  `\x1b[35m[visora]\x1b[0m 📝 Added instruction to queue! (Task ID: \x1b[36m${id}\x1b[0m)`
+                );
+              } else {
+                console.log(
+                  `\x1b[35m[visora]\x1b[0m selection updated → \x1b[36m${payload.sourceFile || 'unknown'}\x1b[0m`
+                );
+              }
             } catch (e) {
               console.error('\x1b[35m[visora]\x1b[0m failed to parse context:', e);
             }
