@@ -50,37 +50,49 @@ Reply ONLY with a JSON object in this exact format (no markdown, no reasoning):
 `;
 
   if (process.env.ANTHROPIC_API_KEY) {
-    const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-    const msg = await anthropic.messages.create({
-      model: "claude-3-5-sonnet-20241022",
-      max_tokens: 2000,
-      system: "You are a helpful coding assistant that outputs strictly valid JSON.",
-      messages: [{ role: "user", content: prompt }]
-    });
-    return parseAIResponse(msg.content[0].type === 'text' ? msg.content[0].text : '');
+    try {
+      const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+      const msg = await anthropic.messages.create({
+        model: "claude-3-5-sonnet-20241022",
+        max_tokens: 2000,
+        system: "You are a helpful coding assistant that outputs strictly valid JSON.",
+        messages: [{ role: "user", content: prompt }]
+      });
+      return parseAIResponse(msg.content[0].type === 'text' ? msg.content[0].text : '');
+    } catch (e: any) {
+      throw new Error(`Anthropic API Error: ${e.message || 'Connection failed'}`);
+    }
   } 
   
   if (process.env.OPENAI_API_KEY) {
-    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
-        { role: "system", content: "You are a helpful coding assistant that outputs strictly valid JSON." },
-        { role: "user", content: prompt }
-      ],
-      response_format: { type: "json_object" }
-    });
-    return parseAIResponse(completion.choices[0].message.content || '');
+    try {
+      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+      const completion = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [
+          { role: "system", content: "You are a helpful coding assistant that outputs strictly valid JSON." },
+          { role: "user", content: prompt }
+        ],
+        response_format: { type: "json_object" }
+      });
+      return parseAIResponse(completion.choices[0].message.content || '');
+    } catch (e: any) {
+      throw new Error(`OpenAI API Error: ${e.message || 'Connection failed'}`);
+    }
   }
 
   if (process.env.GEMINI_API_KEY) {
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
-    const result = await model.generateContent({
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
-      generationConfig: { responseMimeType: "application/json" }
-    });
-    return parseAIResponse(result.response.text());
+    try {
+      const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+      const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+      const result = await model.generateContent({
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        generationConfig: { responseMimeType: "application/json" }
+      });
+      return parseAIResponse(result.response.text());
+    } catch (e: any) {
+      throw new Error(`Google Gemini Error: ${e.message || 'Connection failed'}`);
+    }
   }
 
   if (process.env.OLLAMA_URL) {
