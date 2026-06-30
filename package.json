@@ -1,0 +1,16 @@
+{
+  "name": "visora",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Visora by Visionatrixx — The Visual Context Engine for AI Coding",
+  "type": "module",
+  "scripts": {
+    "dev": "pnpm --filter @visora/demo dev",
+    "dev:demo": "pnpm --filter @visora/demo dev",
+    "build": "pnpm -r build",
+    "mcp": "node packages/mcp-server/dist/index.js"
+  },
+  "keywords": ["visora", "ai", "visual-editing", "mcp", "react", "vite"],
+  "author": "Visionatrixx",
+  "license": "MIT"
+}

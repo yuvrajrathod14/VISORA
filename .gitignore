@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.visora/
+*.tsbuildinfo
+.DS_Store
+*.local
+.env
+.env.*
