@@ -6,10 +6,22 @@
   "type": "module",
   "scripts": {
     "dev": "pnpm --filter @visora/demo dev",
+    "dev:next": "pnpm --filter demo-next dev",
+    "dev:vue": "pnpm --filter demo-vue dev",
     "dev:demo": "pnpm --filter @visora/demo dev",
     "build": "pnpm -r build",
     "mcp": "node packages/mcp-server/dist/index.js",
     "visora": "node packages/patcher/dist/index.js"
+  },
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "sharp",
+      "unrs-resolver"
+    ]
   },
   "keywords": [
     "visora",

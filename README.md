@@ -28,11 +28,12 @@ A proud product of **[Visionatrix](#)**, developed by **Yuvraj Rathod**.
 
 | Feature | Description |
 |---|---|
-| **Precision Visual Selection** | Hover and click any component in your running React app. Visora highlights it instantly with source file and line info. |
-| **Deep AST Context** | Automatically extracts React Fiber data, component names, props, and hierarchical DOM structures. |
-| **Multi-Action Queue** | Queue up dozens of UI modifications simultaneously without breaking your flow. |
+| **Precision Visual Selection** | `Alt+Click` any component in your running application. Visora highlights it instantly with source file and line info. |
+| **Multi-Component Selection** | `Shift+Alt+Click` to select multiple DOM nodes simultaneously for grouped AI patches. |
+| **Deep AST Context** | Automatically extracts React Fiber data, Vue contexts, component names, props, and hierarchical DOM structures. |
+| **Multimodal AI Vision** | Visora takes a high-res screenshot of the component and sends it to the AI for true visual understanding! |
+| **Safe Preview Dashboard** | AI patches are held in a local HTTP dashboard (`localhost:4444`) so you can review a visual code diff before applying. |
 | **Autonomous Patcher** | A standalone background CLI agent that connects to Anthropic, OpenAI, Gemini, or Ollama. |
-| **Native MCP Server** | Seamlessly plug Visora into Cursor or Windsurf for IDE-integrated AI editing. |
 | **Interactive Setup** | First-time users are guided through an interactive AI provider wizard in the terminal. |
 
 ---
@@ -55,9 +56,8 @@ pnpm --filter "@visora/*" build
 
 Visora currently supports the following frameworks and build tools:
 - **React (Vite)**
+- **Vue 3 (Vite)**
 - **Next.js (App Router & Pages Router)**
-- **Vue 3 (Vite)** (In Progress)
-- **Nuxt 3** (In Progress)
 
 ## Quick Start the Demo App
 ```bash

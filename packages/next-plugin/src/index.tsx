@@ -6,8 +6,6 @@ import { OVERLAY_SCRIPT } from './overlay-script';
 
 export function VisoraTracker() {
   useEffect(() => {
-    if (process.env.NODE_ENV !== 'development') return;
-    
     // Only inject once
     if (document.getElementById('visora-overlay-script')) return;
 

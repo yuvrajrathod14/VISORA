@@ -1,7 +1,10 @@
 <script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
+import Dashboard from './components/Dashboard.vue'
 </script>
 
 <template>
-  <HelloWorld />
+  <Dashboard />
 </template>
+
+<style scoped>
+</style>

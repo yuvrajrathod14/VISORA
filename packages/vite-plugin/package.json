@@ -11,8 +11,9 @@
     }
   },
   "scripts": {
-    "build:overlay": "esbuild src/overlay.ts --bundle --outfile=dist/overlay.js --format=iife --minify",
-    "build": "tsc && pnpm build:overlay"
+    "build": "tsc && npm run build:overlay",
+    "build:overlay": "esbuild src/overlay.ts --bundle --outfile=dist/overlay.js --format=iife --target=es2020 --minify",
+    "dev": "tsc --watch & npm run build:overlay -- --watch"
   },
   "dependencies": {
     "@visora/shared": "workspace:*"

@@ -21,10 +21,12 @@
     "chalk": "^5.6.2",
     "chokidar": "^5.0.0",
     "dotenv": "^17.4.2",
+    "express": "^5.2.1",
     "openai": "^6.45.0",
     "ora": "^9.4.1"
   },
   "devDependencies": {
+    "@types/express": "^5.0.6",
     "@types/node": "^22.20.0",
     "@visora/vite-plugin": "file:../vite-plugin",
     "tsup": "^8.5.1",

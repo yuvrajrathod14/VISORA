@@ -10,55 +10,80 @@ export interface PatchResult {
   modifiedContent: string;
 }
 
-export async function generatePatch(task: any, appRoot: string): Promise<PatchResult | null> {
-  const { instruction, sourceFile, sourceLine, componentName, tagName, props, ast, computedStyles } = task.selection;
+export async function generatePatch(task: any, appRoot: string): Promise<PatchResult[] | null> {
+  const isMulti = !!task.selection.selections;
+  const selections = isMulti ? task.selection.selections : [task.selection];
+  const instruction = isMulti ? task.selection.instruction : task.selection.instruction;
   
-  // Read the actual source code of the file to give the AI context
-  let sourceCode = '';
-  try {
-    sourceCode = fs.readFileSync(path.join(appRoot, sourceFile), 'utf-8');
-  } catch (e) {
-    throw new Error(`Could not read source file: ${sourceFile}`);
+  // Collect unique source files
+  const uniqueFiles = new Set<string>();
+  selections.forEach((sel: any) => { if (sel.sourceFile) uniqueFiles.add(sel.sourceFile); });
+
+  let sourceCodeBlocks = '';
+  for (const file of uniqueFiles) {
+    try {
+      const code = fs.readFileSync(path.join(appRoot, file), 'utf-8');
+      const ext = path.extname(file).slice(1) || 'tsx';
+      sourceCodeBlocks += `\n--- File: ${file} ---\n\`\`\`${ext}\n${code}\n\`\`\`\n`;
+    } catch (e) {
+      console.warn(`Could not read source file: ${file}`);
+    }
   }
 
-  const fileExtension = path.extname(sourceFile).slice(1) || 'tsx';
-  
-  const prompt = `You are an expert frontend AI agent (Vue, Next.js, React).
-The user wants to make a visual edit to a UI component.
+  const targetsDescription = selections.map((sel: any, i: number) => 
+    `[${i + 1}] Component: <${sel.componentName || sel.tagName}> in ${sel.sourceFile} (around line ${sel.sourceLine})`
+  ).join('\n');
 
-Target File: ${sourceFile}
-Target Component: <${componentName || tagName}> (around line ${sourceLine})
+  const prompt = `You are an expert frontend AI agent (Vue, Next.js, React).
+The user wants to make a visual edit to one or more UI components simultaneously.
 
 User Instruction: "${instruction}"
 
-AST Data:
-${JSON.stringify(ast, null, 2)}
+Target Components:
+${targetsDescription}
 
-Current Props:
-${JSON.stringify(props, null, 2)}
+Source Code:
+${sourceCodeBlocks}
 
-File Source Code:
-\`\`\`${fileExtension}
-${sourceCode}
-\`\`\`
-
-Your job is to generate a patch.
-Reply ONLY with a JSON object in this exact format (no markdown, no reasoning):
-{
-  "filePath": "${sourceFile}",
-  "originalContent": "exact original code block to replace (must match exactly)",
-  "modifiedContent": "the new code block"
-}
+Your job is to generate patches for the requested changes.
+Reply ONLY with a JSON ARRAY of objects in this exact format (no markdown, no reasoning):
+[
+  {
+    "filePath": "relative/path/to/file",
+    "originalContent": "exact original code block to replace (must match exactly)",
+    "modifiedContent": "the new code block"
+  }
+]
 `;
+
+  let imageBase64 = null;
+  let mimeType = 'image/png';
+  if (task.selection.screenshotFile) {
+    try {
+      const imgPath = path.join(appRoot, task.selection.screenshotFile);
+      imageBase64 = fs.readFileSync(imgPath).toString('base64');
+    } catch (e) {
+      console.warn("Could not read screenshot file for AI vision context.");
+    }
+  }
 
   if (process.env.ANTHROPIC_API_KEY) {
     try {
       const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+      const content: any[] = [];
+      if (imageBase64) {
+        content.push({
+          type: "image",
+          source: { type: "base64", media_type: "image/png", data: imageBase64 }
+        });
+      }
+      content.push({ type: "text", text: prompt });
+
       const msg = await anthropic.messages.create({
         model: "claude-3-5-sonnet-20241022",
         max_tokens: 2000,
         system: "You are a helpful coding assistant that outputs strictly valid JSON.",
-        messages: [{ role: "user", content: prompt }]
+        messages: [{ role: "user", content }]
       });
       return parseAIResponse(msg.content[0].type === 'text' ? msg.content[0].text : '');
     } catch (e: any) {
@@ -69,11 +94,20 @@ Reply ONLY with a JSON object in this exact format (no markdown, no reasoning):
   if (process.env.OPENAI_API_KEY) {
     try {
       const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+      const content: any[] = [];
+      content.push({ type: "text", text: prompt });
+      if (imageBase64) {
+        content.push({
+          type: "image_url",
+          image_url: { url: `data:image/png;base64,${imageBase64}` }
+        });
+      }
+
       const completion = await openai.chat.completions.create({
         model: "gpt-4o",
         messages: [
           { role: "system", content: "You are a helpful coding assistant that outputs strictly valid JSON." },
-          { role: "user", content: prompt }
+          { role: "user", content }
         ],
         response_format: { type: "json_object" }
       });
@@ -87,8 +121,15 @@ Reply ONLY with a JSON object in this exact format (no markdown, no reasoning):
     try {
       const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
       const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+      const parts: any[] = [{ text: prompt }];
+      if (imageBase64) {
+        parts.push({
+          inlineData: { data: imageBase64, mimeType: "image/png" }
+        });
+      }
+
       const result = await model.generateContent({
-        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        contents: [{ role: "user", parts }],
         generationConfig: { responseMimeType: "application/json" }
       });
       return parseAIResponse(result.response.text());
@@ -126,39 +167,42 @@ Reply ONLY with a JSON object in this exact format (no markdown, no reasoning):
   throw new Error("No AI Provider configured. Please set ANTHROPIC_API_KEY, OPENAI_API_KEY, GEMINI_API_KEY, or OLLAMA_URL in your .env file.");
 }
 
-function parseAIResponse(text: string | undefined): PatchResult | null {
+function parseAIResponse(text: string | undefined): PatchResult[] | null {
   if (!text) {
     console.error("  [visora] AI response was empty or undefined.");
     return null;
   }
   try {
-    // Extract JSON block even if the AI hallucinates conversational text before/after
-    const start = text.indexOf('{');
-    const end = text.lastIndexOf('}');
+    const start = text.indexOf('[');
+    const end = text.lastIndexOf(']');
     
     if (start === -1 || end === -1 || end < start) {
-      console.error("  [visora] Failed to find a valid JSON object in the AI response.");
-      console.error("  Raw Output:", text.slice(0, 200) + '...');
+      // Fallback: try parsing as a single object if it failed to return an array
+      const objStart = text.indexOf('{');
+      const objEnd = text.lastIndexOf('}');
+      if (objStart !== -1 && objEnd !== -1 && objEnd > objStart) {
+        const obj = JSON.parse(text.slice(objStart, objEnd + 1));
+        if (obj.filePath && obj.originalContent) {
+          if (obj.modifiedContent === undefined) obj.modifiedContent = '';
+          return [obj];
+        }
+      }
+      
+      console.error("  [visora] Failed to find a valid JSON array in the AI response.");
       return null;
     }
     
     const jsonStr = text.slice(start, end + 1);
-    const result = JSON.parse(jsonStr);
+    const results = JSON.parse(jsonStr);
     
-    if (typeof result.filePath === 'string' && typeof result.originalContent === 'string') {
-      if (result.modifiedContent === undefined) {
-        result.modifiedContent = ''; // Default to empty string for deletions
-      }
-      if (typeof result.modifiedContent === 'string') {
-        return result;
-      }
+    if (Array.isArray(results)) {
+      const validResults = results.filter(r => typeof r.filePath === 'string' && typeof r.originalContent === 'string');
+      validResults.forEach(r => { if (r.modifiedContent === undefined) r.modifiedContent = ''; });
+      return validResults.length > 0 ? validResults : null;
     }
     
-    console.error("  [visora] AI JSON is missing required fields (filePath, originalContent).");
-    console.error("  Parsed Object:", result);
   } catch (e) {
     console.error("  [visora] Failed to parse AI JSON response. Error:", e);
-    console.error("  Raw Output:", text.slice(0, 200) + '...');
   }
   return null;
 }

@@ -104,24 +104,16 @@ import * as htmlToImage from 'html-to-image';
   styleEl.textContent = STYLES;
   document.head.appendChild(styleEl);
 
-  const highlightEl = document.createElement('div');
-  highlightEl.className = 'visora-highlight';
-  highlightEl.style.display = 'none';
-
-  const badgeEl = document.createElement('div');
-  badgeEl.className = 'visora-badge';
-  badgeEl.style.display = 'none';
-
   const toggleEl = document.createElement('button');
   toggleEl.className = 'visora-toggle';
   toggleEl.innerHTML = '<div class="visora-toggle-dot"></div> Visora Inspector';
 
-  document.body.appendChild(highlightEl);
-  document.body.appendChild(badgeEl);
   document.body.appendChild(toggleEl);
 
   let isVisoraActive = false;
-  let currentTarget: HTMLElement | null = null;
+  let hoveredTarget: HTMLElement | null = null;
+  let selectedEls: HTMLElement[] = [];
+  let highlightElements: { box: HTMLElement, badge: HTMLElement }[] = [];
   let panelEl: HTMLElement | null = null;
   let isSending = false;
 
@@ -132,9 +124,8 @@ import * as htmlToImage from 'html-to-image';
     } else {
       toggleEl.classList.remove('active');
       closePanel();
-      highlightEl.style.display = 'none';
-      badgeEl.style.display = 'none';
-      currentTarget = null;
+      hoveredTarget = null;
+      renderHighlights();
     }
   });
 
@@ -142,11 +133,12 @@ import * as htmlToImage from 'html-to-image';
     // Find the property that starts with __reactFiber$
     const fiberKey = Object.keys(el).find(key => key.startsWith('__reactFiber$'));
     if (!fiberKey) return null;
-    
+
     let fiber = (el as any)[fiberKey];
-    
+
     // Traverse up the fiber tree until we find a component with source code
     while (fiber) {
+      // Best case: _debugSource is available (Babel/Vite dev builds)
       if (fiber._debugSource && fiber._debugSource.fileName) {
         let componentName = 'Component';
         if (fiber.type && typeof fiber.type === 'function' && fiber.type.name) {
@@ -158,7 +150,25 @@ import * as htmlToImage from 'html-to-image';
       }
       fiber = fiber.return;
     }
-    return null;
+
+    // Fallback for Next.js SWC builds where _debugSource is not available:
+    // Walk up the fiber tree and find the nearest named function component
+    fiber = (el as any)[fiberKey];
+    while (fiber) {
+      if (fiber.type && typeof fiber.type === 'function' && fiber.type.name) {
+        const name = fiber.type.name;
+        // Skip React internals and very short generic names
+        if (name.length > 1 && name[0] === name[0].toUpperCase() && !['Fragment', 'Suspense', 'StrictMode', 'Profiler'].includes(name)) {
+          return `component:${name}:0:${name}`;
+        }
+      } else if (fiber.type && typeof fiber.type === 'object' && fiber.type.displayName) {
+        return `component:${fiber.type.displayName}:0:${fiber.type.displayName}`;
+      }
+      fiber = fiber.return;
+    }
+
+    // Last resort: if this element has a React fiber at all, allow selection with a generic label
+    return `element:${el.tagName.toLowerCase()}:0:UnknownComponent`;
   }
 
   function getVueSource(el: HTMLElement): string | null {
@@ -183,7 +193,7 @@ import * as htmlToImage from 'html-to-image';
         // 1. Try Vite AST Plugin Injection
         const attr = el.getAttribute('data-visora-src');
         if (attr) return { element: el, src: attr };
-        
+
         // 2. Try Universal React Fiber Extraction (Next.js, CRA, Turbopack)
         const fiberSrc = getReactFiberSource(el);
         if (fiberSrc) return { element: el, src: fiberSrc };
@@ -197,22 +207,59 @@ import * as htmlToImage from 'html-to-image';
     return null;
   }
 
-  function positionHighlight(el: HTMLElement): void {
-    const r = el.getBoundingClientRect();
-    highlightEl.style.display = 'block';
-    highlightEl.style.left = r.left - 2 + 'px';
-    highlightEl.style.top = r.top - 2 + 'px';
-    highlightEl.style.width = r.width + 4 + 'px';
-    highlightEl.style.height = r.height + 4 + 'px';
+  function renderHighlights(): void {
+    // Determine the set of elements to highlight: selectedEls + hoveredTarget (if not already selected)
+    const elementsToHighlight = [...selectedEls];
+    if (hoveredTarget && !elementsToHighlight.includes(hoveredTarget)) {
+      elementsToHighlight.push(hoveredTarget);
+    }
 
-    const vsrc = el.getAttribute('data-visora-src') || '';
-    const fiberData = extractFiberData(el);
-    const displayName = fiberData?.componentName ? `<${fiberData.componentName}> — ${vsrc}` : vsrc;
+    // Ensure we have enough highlight DOM elements
+    while (highlightElements.length < elementsToHighlight.length) {
+      const box = document.createElement('div');
+      box.className = 'visora-highlight';
 
-    badgeEl.style.display = 'block';
-    badgeEl.style.left = r.left + 'px';
-    badgeEl.style.top = Math.max(r.top, 20) + 'px';
-    badgeEl.textContent = displayName;
+      const badge = document.createElement('div');
+      badge.className = 'visora-badge';
+
+      document.body.appendChild(box);
+      document.body.appendChild(badge);
+      highlightElements.push({ box, badge });
+    }
+
+    // Hide extras
+    for (let i = elementsToHighlight.length; i < highlightElements.length; i++) {
+      highlightElements[i].box.style.display = 'none';
+      highlightElements[i].badge.style.display = 'none';
+    }
+
+    // Position active highlights
+    elementsToHighlight.forEach((el, index) => {
+      if (!el || !el.getBoundingClientRect) return;
+      const isSelected = selectedEls.includes(el);
+      const dom = highlightElements[index];
+      if (!dom) return;
+      const r = el.getBoundingClientRect();
+
+      dom.box.style.display = 'block';
+      dom.box.style.left = r.left - 2 + 'px';
+      dom.box.style.top = r.top - 2 + 'px';
+      dom.box.style.width = r.width + 4 + 'px';
+      dom.box.style.height = r.height + 4 + 'px';
+
+      if (isSelected) dom.box.classList.add('visora-selected');
+      else dom.box.classList.remove('visora-selected');
+
+      const sourceData = findSourceEl(el);
+      const vsrc = sourceData ? sourceData.src : '';
+      const fiberData = extractFiberData(el);
+      const displayName = fiberData?.componentName ? `<${fiberData.componentName}> — ${vsrc}` : vsrc;
+
+      dom.badge.style.display = 'block';
+      dom.badge.style.left = r.left + 'px';
+      dom.badge.style.top = Math.max(r.top, 20) + 'px';
+      dom.badge.textContent = displayName;
+    });
   }
 
   function getFiberNode(el: HTMLElement): any | null {
@@ -363,16 +410,20 @@ import * as htmlToImage from 'html-to-image';
     }, 3000);
   }
 
-  function openPanel(el: HTMLElement): void {
-    closePanel();
-    highlightEl.classList.add('visora-selected');
-    positionHighlight(el);
+  function openPanel(): void {
+    if (!selectedEls || selectedEls.length === 0) return;
 
-    const r = el.getBoundingClientRect();
-    const sourceData = findSourceEl(el);
-    const vsrc = sourceData ? sourceData.src : '';
-    const fiber = extractFiberData(el);
-    const compDisplay = fiber?.componentName ? `<strong>&lt;${fiber.componentName}&gt;</strong>` : `<strong>${el.tagName.toLowerCase()}</strong>`;
+    if (panelEl) {
+      panelEl.remove();
+      panelEl = null;
+    }
+
+    renderHighlights();
+
+    // Position panel relative to the last selected element
+    const lastEl = selectedEls[selectedEls.length - 1];
+    if (!lastEl || typeof lastEl.getBoundingClientRect !== 'function') return;
+    const r = lastEl.getBoundingClientRect();
 
     panelEl = document.createElement('div');
     panelEl.className = 'visora-panel';
@@ -386,7 +437,8 @@ import * as htmlToImage from 'html-to-image';
     panelEl.style.left = panelLeft + 'px';
     panelEl.style.top = panelTop + 'px';
 
-    const propsInfo = fiber?.props && Object.keys(fiber.props).length > 0 ? `<br>Props: ${Object.keys(fiber.props).join(', ')}` : '';
+    const count = selectedEls.length;
+    const compDisplay = count === 1 ? '1 Component Selected' : `${count} Components Selected`;
 
     panelEl.innerHTML = `
       <div class="visora-loading-bar" id="visora-loading-bar"></div>
@@ -395,7 +447,7 @@ import * as htmlToImage from 'html-to-image';
         <span class="visora-panel-title">Visora</span>
         <button class="visora-panel-close" data-action="close" title="Close (Esc)">✕</button>
       </div>
-      <div class="visora-panel-info">${compDisplay}<br>📁 ${vsrc}${propsInfo}</div>
+      <div class="visora-panel-info"><strong>${compDisplay}</strong><br>Use Shift+Alt+Click to select multiple.</div>
       <textarea id="visora-prompt" placeholder="Describe the change...\ne.g. Make this button rounded with glassmorphism"></textarea>
       <div class="visora-panel-actions">
         <button class="visora-btn visora-btn-secondary" data-action="cancel">Cancel</button>
@@ -429,27 +481,25 @@ import * as htmlToImage from 'html-to-image';
         if (loadingBar) { loadingBar.style.display = 'block'; }
 
         try {
-          // Temporarily hide highlight to get a clean screenshot
-          highlightEl.style.display = 'none';
-          badgeEl.style.display = 'none';
+          // Temporarily hide highlights to get a clean screenshot of the whole screen
+          highlightElements.forEach(h => { h.box.style.display = 'none'; h.badge.style.display = 'none'; });
           panelEl!.style.display = 'none';
 
-          const screenshotBase64 = await htmlToImage.toPng(el, { backgroundColor: '#0a0a0f' });
+          const screenshotBase64 = await htmlToImage.toPng(document.body, { backgroundColor: '#0a0a0f' });
 
-          highlightEl.style.display = 'block';
-          badgeEl.style.display = 'block';
           panelEl!.style.display = 'block';
+          renderHighlights();
 
-          const ctx = buildContext(el, instruction);
-          (ctx as any).screenshotBase64 = screenshotBase64;
+          const selections = selectedEls.map(el => buildContext(el, instruction));
+          const endpoint = detectFramework() === 'nextjs' ? '/api/visora' : '/@visora/context';
 
-          const res = await fetch('/@visora/context', {
+          const res = await fetch(endpoint, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(ctx),
+            body: JSON.stringify({ selections, instruction, screenshotBase64 }),
           });
 
-          if (res.ok || res.status === 204) showToast('Context sent! Ask your AI agent to apply it.', 'success');
+          if (res.ok || res.status === 204) showToast('Context sent! AI is processing...', 'success');
           else showToast(`Server error (${res.status})`, 'error');
         } catch (err) {
           console.error(err);
@@ -464,26 +514,64 @@ import * as htmlToImage from 'html-to-image';
 
   function closePanel(): void {
     if (panelEl) { panelEl.remove(); panelEl = null; }
-    highlightEl.classList.remove('visora-selected');
+    selectedEls = [];
     isSending = false;
+    renderHighlights();
   }
 
   document.addEventListener('mousemove', (e: MouseEvent) => {
     if (!isVisoraActive || panelEl) return;
     const sourceData = findSourceEl(e.target as Element);
-    if (sourceData) { 
-        currentTarget = sourceData.element; 
-        positionHighlight(currentTarget); 
+    if (sourceData) {
+      hoveredTarget = sourceData.element;
     }
-    else { highlightEl.style.display = 'none'; badgeEl.style.display = 'none'; currentTarget = null; }
+    else { hoveredTarget = null; }
+    renderHighlights();
   });
 
   document.addEventListener('click', (e: MouseEvent) => {
-    if (!isVisoraActive || !e.altKey) return;
+    // Only intercept if holding Alt
+    if (!e.altKey) return;
+    console.log('[Visora] Alt+Click detected on:', e.target);
+
     const elData = findSourceEl(e.target as Element);
-    if (!elData) return;
-    e.preventDefault(); e.stopPropagation();
-    openPanel(elData.element);
+    if (!elData) {
+      console.warn('[Visora] Could not find source code for element');
+      return;
+    }
+    console.log('[Visora] Source found:', elData.src);
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    // Auto-activate Visora if not already active
+    if (!isVisoraActive) {
+      isVisoraActive = true;
+      const toggleBtn = document.querySelector('.visora-toggle');
+      if (toggleBtn) toggleBtn.classList.add('active');
+    }
+
+    if (e.shiftKey) {
+      // Toggle selection
+      if (selectedEls.includes(elData.element)) {
+        selectedEls = selectedEls.filter(el => el !== elData.element);
+      } else {
+        selectedEls.push(elData.element);
+      }
+    } else {
+      // Replace selection
+      selectedEls = [elData.element];
+    }
+
+    if (!panelEl) {
+      openPanel();
+    } else {
+      // Update UI with new selection count
+      const count = selectedEls.length;
+      const infoEl = panelEl.querySelector('.visora-panel-info strong');
+      if (infoEl) infoEl.textContent = count === 1 ? '1 Component Selected' : `${count} Components Selected`;
+      renderHighlights();
+    }
   }, true);
 
   document.addEventListener('keydown', (e: KeyboardEvent) => {
@@ -492,18 +580,18 @@ import * as htmlToImage from 'html-to-image';
 
   window.addEventListener('scroll', () => {
     if (!isVisoraActive) return;
-    if (currentTarget) {
-      positionHighlight(currentTarget);
-      if (panelEl) {
-        const r = currentTarget.getBoundingClientRect();
-        let panelLeft = r.right + 12;
-        let panelTop = r.top;
-        if (panelLeft + 370 > window.innerWidth) panelLeft = r.left - 372;
-        if (panelLeft < 10) { panelLeft = Math.min(r.left, window.innerWidth - 380); panelTop = r.bottom + 12; }
-        panelTop = Math.max(10, Math.min(panelTop, window.innerHeight - 280));
-        panelEl.style.left = panelLeft + 'px';
-        panelEl.style.top = panelTop + 'px';
-      }
+    renderHighlights();
+    if (panelEl && selectedEls.length > 0) {
+      const lastEl = selectedEls[selectedEls.length - 1];
+      if (!lastEl || typeof lastEl.getBoundingClientRect !== 'function') return;
+      const r = lastEl.getBoundingClientRect();
+      let panelLeft = r.right + 12;
+      let panelTop = r.top;
+      if (panelLeft + 370 > window.innerWidth) panelLeft = r.left - 372;
+      if (panelLeft < 10) { panelLeft = Math.min(r.left, window.innerWidth - 380); panelTop = r.bottom + 12; }
+      panelTop = Math.max(10, Math.min(panelTop, window.innerHeight - 280));
+      panelEl.style.left = panelLeft + 'px';
+      panelEl.style.top = panelTop + 'px';
     }
   }, true); // Use capture phase to catch scrolls on any overflow container
 

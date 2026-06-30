@@ -22,6 +22,121 @@ import { generatePatch } from './ai';
 import { applyPatch } from './diff';
 import { checkAndRunOnboarding } from './onboarding';
 import { runInit } from './init';
+import express from 'express';
+import crypto from 'crypto';
+
+const app = express();
+app.use(express.json());
+
+app.get('/', (req, res) => {
+  res.send(`
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <title>Visora Patch Review</title>
+      <style>
+        body { font-family: -apple-system, system-ui; background: #0f111a; color: #fff; padding: 2rem; margin: 0; }
+        .patch-card { background: #1a1d27; border: 1px solid #333; padding: 1.5rem; border-radius: 8px; margin-bottom: 1rem; }
+        .diff-view { background: #000; padding: 1rem; border-radius: 6px; overflow-x: auto; font-family: monospace; white-space: pre-wrap; font-size: 13px; }
+        .diff-add { color: #4ade80; }
+        .diff-sub { color: #f87171; }
+        .btn { padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer; font-weight: 500; margin-right: 0.5rem; }
+        .btn-approve { background: #d97757; color: white; }
+        .btn-reject { background: #333; color: white; }
+      </style>
+    </head>
+    <body>
+      <div style="display: flex; align-items: center; margin-bottom: 2rem;">
+        <div style="background:#d97757; color:#fff; font-weight:bold; width:32px; height:32px; border-radius:4px; display:flex; align-items:center; justify-content:center; margin-right: 12px;">V</div>
+        <h1 style="margin:0;">Visora Review</h1>
+      </div>
+      <div id="patches">Loading pending patches...</div>
+      <script>
+        async function fetchPatches() {
+          const res = await fetch('/api/patches');
+          const patches = await res.json();
+          const container = document.getElementById('patches');
+          if (patches.length === 0) {
+            container.innerHTML = '<div style="color:#888;">No pending patches. Run a task via the Visora overlay!</div>';
+            return;
+          }
+          container.innerHTML = patches.map(p => \`
+            <div class="patch-card">
+              <h3>\${p.instruction}</h3>
+              <p style="color:#888; font-size: 14px;">Targeting \${p.patches.length} file(s)</p>
+              \${p.patches.map(filePatch => \`
+                <div style="margin-top: 1rem;">
+                  <strong style="color: #60a5fa;">\${filePatch.filePath}</strong>
+                  <div class="diff-view"><span class="diff-sub">-\${filePatch.originalContent}</span><br><br><span class="diff-add">+\${filePatch.modifiedContent}</span></div>
+                </div>
+              \`).join('')}
+              <div style="margin-top: 1.5rem;">
+                <button class="btn btn-approve" onclick="handleAction('\${p.id}', 'approve')">Approve & Apply</button>
+                <button class="btn btn-reject" onclick="handleAction('\${p.id}', 'reject')">Discard</button>
+              </div>
+            </div>
+          \`).join('');
+        }
+        async function handleAction(id, action) {
+          await fetch(\`/api/patches/\${id}/\${action}\`, { method: 'POST' });
+          fetchPatches();
+        }
+        fetchPatches();
+        setInterval(fetchPatches, 3000);
+      </script>
+    </body>
+    </html>
+  `);
+});
+
+interface PendingPatch {
+  id: string;
+  appRoot: string;
+  instruction: string;
+  patches: any[];
+}
+const pendingPatches: PendingPatch[] = [];
+
+app.get('/api/patches', (req, res) => res.json(pendingPatches));
+
+app.post('/api/patches/:id/approve', (req, res) => {
+  const idx = pendingPatches.findIndex(p => p.id === req.params.id);
+  if (idx !== -1) {
+    const p = pendingPatches[idx];
+    let allSuccess = true;
+    for (const patch of p.patches) {
+      const success = applyPatch(p.appRoot, patch.filePath, patch.originalContent, patch.modifiedContent);
+      if (success) {
+        console.log(SUCCESS(`  ✔ Patched ${patch.filePath} (Approved via Dashboard)`));
+      } else {
+        console.log(FAIL(`  ✖ Patch conflict in ${patch.filePath}`));
+        allSuccess = false;
+      }
+    }
+    
+    // Add to history
+    if (allSuccess) {
+      // NOTE: History logic can be added here if needed
+    }
+    
+    pendingPatches.splice(idx, 1);
+  }
+  res.sendStatus(200);
+});
+
+app.post('/api/patches/:id/reject', (req, res) => {
+  const idx = pendingPatches.findIndex(p => p.id === req.params.id);
+  if (idx !== -1) {
+    console.log(FAIL(`  ✖ Rejected patch for "${pendingPatches[idx].instruction}"`));
+    pendingPatches.splice(idx, 1);
+  }
+  res.sendStatus(200);
+});
+
+app.listen(4444, () => {
+  // Silent start
+});
 
 // ═══════════════════════════════════════════════════════════
 // CONSTANTS & BRANDING
@@ -347,11 +462,15 @@ async function processQueue(targetQueuePath: string) {
   }
 
   for (const task of pendingTasks) {
-    const target = task.selection.componentName || task.selection.tagName || 'element';
-    const file = task.selection.sourceFile || 'unknown';
+    const isMulti = !!task.selection.selections;
+    const firstSel = isMulti ? task.selection.selections[0] : task.selection;
+    const instruction = isMulti ? task.selection.instruction : task.selection.instruction;
+    const target = firstSel?.componentName || firstSel?.tagName || 'element';
+    const file = firstSel?.sourceFile || 'unknown';
+    const multiSuffix = (isMulti && task.selection.selections.length > 1) ? ` (+${task.selection.selections.length - 1} more)` : '';
 
-    console.log(ACCENT(`  ● Task`), chalk.white(`"${task.selection.instruction}"`));
-    console.log(DIM(`    ${target} → ${file}`));
+    console.log(ACCENT(`  ● Task`), chalk.white(`"${instruction}"`));
+    console.log(DIM(`    ${target} → ${file}${multiSuffix}`));
 
     task.status = 'processing';
     fs.writeFileSync(targetQueuePath, JSON.stringify(queue, null, 2));
@@ -368,20 +487,21 @@ async function processQueue(targetQueuePath: string) {
     try {
       const appRoot = path.dirname(path.dirname(targetQueuePath));
 
-      const patch = await generatePatch(task, appRoot);
+      const patches = await generatePatch(task, appRoot);
       const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
 
-      if (patch && typeof patch.modifiedContent === 'string') {
-        spinner.text = DIM(`Writing to ${patch.filePath}…`);
-
-        const success = applyPatch(appRoot, patch.filePath, patch.originalContent, patch.modifiedContent);
-        if (success) {
-          spinner.succeed(SUCCESS(`Patched ${patch.filePath}`) + DIM(` (${elapsed}s)`));
-          task.status = 'done';
-        } else {
-          spinner.fail(FAIL(`Patch conflict in ${patch.filePath}`) + DIM(` (${elapsed}s)`));
-          task.status = 'failed';
-        }
+      if (patches && Array.isArray(patches) && patches.length > 0) {
+        const patchId = crypto.randomUUID();
+        pendingPatches.push({
+          id: patchId,
+          appRoot,
+          instruction,
+          patches
+        });
+        
+        spinner.succeed(SUCCESS(`Generated ${patches.length} patch(es)`) + DIM(` (${elapsed}s)`));
+        console.log(INFO(`  ➡ Patch ready for review at http://localhost:4444`));
+        task.status = 'done'; // The task is done generating, it's now in the review queue
       } else {
         spinner.fail(FAIL(`No valid patch from AI`) + DIM(` (${elapsed}s)`));
         task.status = 'failed';

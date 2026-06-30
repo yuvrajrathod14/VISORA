@@ -107,8 +107,8 @@ export default function visoraPlugin(options: VisoraPluginOptions = {}): Plugin 
     },
 
     transform(code: string, id: string) {
-      // Only process JSX/TSX files
-      if (!/\.(jsx|tsx)$/.test(id)) return null;
+      // Only process JSX/TSX/Vue files
+      if (!/\.(jsx|tsx|vue)$/.test(id)) return null;
       // Skip node_modules
       if (id.includes('node_modules')) return null;
 
