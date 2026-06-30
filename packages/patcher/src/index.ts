@@ -368,7 +368,7 @@ async function processQueue(targetQueuePath: string) {
       const patch = await generatePatch(task, appRoot);
       const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
 
-      if (patch && patch.modifiedContent) {
+      if (patch && typeof patch.modifiedContent === 'string') {
         spinner.text = DIM(`Writing to ${patch.filePath}…`);
 
         const success = applyPatch(appRoot, patch.filePath, patch.originalContent, patch.modifiedContent);
