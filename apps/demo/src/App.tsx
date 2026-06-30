@@ -1,6 +1,7 @@
 import Header from './components/Header';
 import Hero from './components/Hero';
 import Features from './components/Features';
+import HowToUse from './components/HowToUse';
 import Footer from './components/Footer';
 
 export default function App() {
@@ -12,6 +13,7 @@ export default function App() {
       <Header />
       <Hero />
       <Features />
+      <HowToUse />
       <Footer />
     </div>
   );
