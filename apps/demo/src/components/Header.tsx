@@ -3,8 +3,13 @@ export default function Header() {
     <header className="header">
       <a href="/" className="header-logo">
         <div className="header-logo-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+          <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            {/* Outer Hexagon / Lens */}
+            <path d="M16 2L28 9V23L16 30L4 23V9L16 2Z" opacity="0.3" stroke="currentColor" />
+            {/* The V / Vision Core */}
+            <path d="M10 12L16 22L22 12" stroke="white" strokeWidth="3" />
+            {/* Top Node */}
+            <circle cx="16" cy="7" r="1.5" fill="white" stroke="none" />
           </svg>
         </div>
         <span className="header-logo-text">Visora</span>

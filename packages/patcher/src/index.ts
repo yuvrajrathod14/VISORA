@@ -4,6 +4,7 @@ import * as path from 'path';
 import * as chokidar from 'chokidar';
 import dotenv from 'dotenv';
 import chalk from 'chalk';
+import ora from 'ora';
 import { generatePatch } from './ai';
 import { applyPatch } from './diff';
 
@@ -11,10 +12,16 @@ dotenv.config();
 
 const projectRoot = process.env.VISORA_PROJECT_ROOT || process.cwd();
 
-console.log(chalk.magenta('  ╔══════════════════════════════════════════╗'));
-console.log(chalk.magenta('  ║') + '  🤖 ' + chalk.bold.magenta('Visora Patcher Daemon') + '                ' + chalk.magenta('║'));
-console.log(chalk.magenta('  ║') + '  Watching for UI instructions...        ' + chalk.magenta('║'));
-console.log(chalk.magenta('  ╚══════════════════════════════════════════╝'));
+// Claude/Anthropic inspired aesthetic
+console.clear();
+console.log(chalk.bold.hex('#d97757')('Visora Autonomous Agent'));
+console.log(chalk.gray('───────────────────────'));
+
+const idleSpinner = ora({
+  text: chalk.gray('Waiting for instructions...'),
+  color: 'gray',
+  spinner: 'dots'
+}).start();
 
 // Keep track of which queues are currently being processed
 const processingQueues = new Set<string>();
@@ -25,7 +32,6 @@ function findQueueFiles(dir: string, fileList: string[] = []) {
   const files = fs.readdirSync(dir);
   for (const file of files) {
     if (file === 'node_modules' || file === 'dist' || file.startsWith('.')) {
-      // Allow searching inside .visora, but skip other hidden folders like .git
       if (file !== '.visora') continue;
     }
     const filePath = path.join(dir, file);
@@ -63,56 +69,66 @@ async function processQueue(targetQueuePath: string) {
   
   processingQueues.add(targetQueuePath);
   
-  console.log(chalk.cyan(`\n[visora] Found ${pendingTasks.length} pending instruction(s)...`));
+  // Stop idle spinner
+  idleSpinner.stop();
+  console.log(); // Blank line for spacing
 
   for (const task of pendingTasks) {
-    console.log(chalk.blue(`\n[visora] Processing Task ${task.id}`));
-    console.log(chalk.gray(`Target: ${task.selection.componentName || task.selection.tagName} in ${task.selection.sourceFile}`));
-    console.log(chalk.white(`Instruction: "${task.selection.instruction}"`));
+    console.log(chalk.hex('#d97757')(`● Task:`), chalk.white(`"${task.selection.instruction}"`));
+    console.log(chalk.gray(`  Target: ${task.selection.componentName || task.selection.tagName} in ${task.selection.sourceFile}`));
     
     task.status = 'processing';
     fs.writeFileSync(targetQueuePath, JSON.stringify(queue, null, 2));
+
+    let actionSpinner = ora({
+      text: chalk.gray('AI analyzing DOM and generating patch...'),
+      color: 'yellow',
+      spinner: 'dots'
+    }).start();
 
     try {
       const appRoot = path.dirname(path.dirname(targetQueuePath));
       
       // 1. Generate Patch using AI
-      console.log(chalk.yellow('[visora] Asking AI to generate patch...'));
       const patch = await generatePatch(task, appRoot);
       
       // 2. Apply Patch
       if (patch && patch.modifiedContent) {
-         console.log(chalk.yellow(`[visora] Applying patch to ${patch.filePath}...`));
+         actionSpinner.text = chalk.gray(`Applying patch to ${patch.filePath}...`);
+         
          const success = applyPatch(appRoot, patch.filePath, patch.originalContent, patch.modifiedContent);
          if (success) {
-           console.log(chalk.green(`[visora] ✨ Successfully patched ${patch.filePath}!`));
+           actionSpinner.succeed(chalk.green(`Code surgically updated (${patch.filePath})`));
            task.status = 'done';
          } else {
-           console.log(chalk.red(`[visora] ❌ Failed to apply patch (context didn't match).`));
+           actionSpinner.fail(chalk.red(`Failed to apply patch (context didn't match).`));
            task.status = 'failed';
          }
       } else {
-         console.log(chalk.red(`[visora] ❌ AI failed to generate a valid patch.`));
+         actionSpinner.fail(chalk.red(`AI failed to generate a valid patch.`));
          task.status = 'failed';
       }
     } catch (e: any) {
-      console.log(chalk.red(`[visora] ❌ Error: ${e.message}`));
+      actionSpinner.fail(chalk.red(`Error: ${e.message}`));
       task.status = 'failed';
     }
     
     // Save state
     fs.writeFileSync(targetQueuePath, JSON.stringify(queue, null, 2));
+    console.log(); // Spacing after task finishes
   }
   
   processingQueues.delete(targetQueuePath);
-  console.log(chalk.cyan(`\n[visora] Finished processing queue. Watching for more...`));
+  
+  // Restart idle spinner
+  idleSpinner.start();
 }
 
 // Watch any queue.json inside a .visora directory anywhere in the workspace
 chokidar.watch('**/.visora/queue.json', { 
   cwd: projectRoot,
   persistent: true,
-  ignoreInitial: true, // We handle initial scan manually now
+  ignoreInitial: true,
   ignored: ['**/node_modules/**', '**/dist/**']
 }).on('add', (relativePath) => {
   processQueue(path.join(projectRoot, relativePath));
