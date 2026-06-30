@@ -104,8 +104,19 @@ This script will automatically:
 - Install the required Visora packages into your project.
 - Safely inject the Visora tracker into your `vite.config.ts` or Next.js `app/layout.tsx`.
 
-Once it's done, just keep the Visora Daemon running (`npx visora` in the Visora folder) and start your project normally!
+Once it's hooked, using Visora is just 2 simple steps:
 
+**Step 1. Run the Daemon (in the Visora folder)**
+```bash
+npm run visora
+```
+
+**Step 2. Start Your App (in your project folder)**
+```bash
+npm run dev
+```
+
+That's it! Now open your app in the browser, `Alt+Click` any UI element, and the Visora AI will magically patch your code!
 ---
 
 ## ⌨️ CLI Reference
