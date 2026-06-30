@@ -90,6 +90,22 @@ pnpm visora
 ```
 If this is your first time, Visora will launch an **interactive setup wizard** that asks you to choose your AI provider (Anthropic, OpenAI, Gemini, or Ollama) and securely saves it to `.env`.
 
+## 🔌 Auto-Install into Your Own Projects
+
+Want to use Visora in your own Next.js or Vite apps? We've built an automated setup script that does everything for you.
+
+1. Clone this repository anywhere on your machine.
+2. Run the hook command and point it to your external project directory:
+```bash
+npm run hook ../path-to-your-project
+```
+This script will automatically:
+- Detect your framework (Next.js, Vite React, or Vue).
+- Install the required Visora packages into your project.
+- Safely inject the Visora tracker into your `vite.config.ts` or Next.js `app/layout.tsx`.
+
+Once it's done, just keep the Visora Daemon running (`npm run visora` in the Visora folder) and start your project normally!
+
 ---
 
 ## ⌨️ CLI Reference

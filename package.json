@@ -11,7 +11,8 @@
     "dev:demo": "pnpm --filter @visora/demo dev",
     "build": "pnpm -r build",
     "mcp": "node packages/mcp-server/dist/index.js",
-    "visora": "node packages/patcher/dist/index.js"
+    "visora": "node packages/patcher/dist/index.js",
+    "hook": "node scripts/hook.js"
   },
   "workspaces": [
     "packages/*",
