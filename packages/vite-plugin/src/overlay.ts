@@ -9,85 +9,94 @@ import * as htmlToImage from 'html-to-image';
   const STYLES = `
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
+    /* ── Selection Highlight ── */
     .visora-highlight {
       position: fixed; pointer-events: none; z-index: 999997;
-      border: 1px solid rgba(59, 130, 246, 0.9);
-      background: rgba(59, 130, 246, 0.05);
-      border-radius: 8px;
-      transition: all 0.15s cubic-bezier(0.22, 1, 0.36, 1);
-      box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.2), inset 0 0 24px rgba(59, 130, 246, 0.05);
+      border: 1.5px solid #6366f1;
+      background: rgba(99, 102, 241, 0.04);
+      border-radius: 6px;
+      transition: all 0.12s cubic-bezier(0.22, 1, 0.36, 1);
     }
     .visora-highlight.visora-selected {
-      border: 2px solid rgba(96, 165, 250, 1);
-      background: rgba(96, 165, 250, 0.08);
-      box-shadow: 0 0 24px rgba(59, 130, 246, 0.25), 0 0 0 1px rgba(96, 165, 250, 0.4);
+      border: 2px solid #6366f1;
+      background: rgba(99, 102, 241, 0.06);
+      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.08);
     }
 
+    /* ── Hover Badge ── */
     .visora-badge {
       position: fixed; pointer-events: none; z-index: 999998;
-      background: rgba(15, 17, 21, 0.85);
-      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      color: #f8fafc; font: 500 11px/1.4 'Inter', system-ui, sans-serif;
-      padding: 4px 10px; border-radius: 6px;
-      transform: translateY(-100%); margin-top: -6px;
-      white-space: nowrap; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-      letter-spacing: 0.02em; max-width: 400px; overflow: hidden; text-overflow: ellipsis;
+      background: #18181b;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: #e4e4e7; font: 500 11px/1.4 'Inter', system-ui, sans-serif;
+      padding: 3px 8px; border-radius: 5px;
+      transform: translateY(-100%); margin-top: -4px;
+      white-space: nowrap; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      letter-spacing: 0.01em; max-width: 400px; overflow: hidden; text-overflow: ellipsis;
     }
 
+    /* ── Panel (Instruction Modal) ── */
     .visora-panel {
-      position: fixed; z-index: 1000000; width: 380px;
-      background: rgba(15, 17, 21, 0.7);
-      backdrop-filter: blur(40px) saturate(180%); -webkit-backdrop-filter: blur(40px) saturate(180%);
-      border: 1px solid rgba(255, 255, 255, 0.08); 
-      border-radius: 20px;
-      padding: 20px; 
-      box-shadow: 0 30px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05);
-      font-family: 'Inter', system-ui, sans-serif; color: #f1f5f9;
-      animation: visora-panel-in 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+      position: fixed; z-index: 1000000; width: 360px;
+      background: #ffffff;
+      border: 1px solid #e4e4e7;
+      border-radius: 16px;
+      padding: 0;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.12), 0 2px 6px rgba(0,0,0,0.04);
+      font-family: 'Inter', system-ui, sans-serif; color: #18181b;
+      animation: visora-panel-in 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+      overflow: hidden;
     }
     @keyframes visora-panel-in {
-      from { opacity: 0; transform: translateY(12px) scale(0.96); }
+      from { opacity: 0; transform: translateY(8px) scale(0.98); }
       to { opacity: 1; transform: translateY(0) scale(1); }
     }
-    
-    .visora-loading-bar { position: absolute; top: 0; left: 0; height: 3px; width: 100%; background: rgba(255,255,255,0.05); overflow: hidden; border-radius: 20px 20px 0 0; display: none; }
-    .visora-loading-bar::after { content: ''; position: absolute; top: 0; left: 0; height: 100%; width: 40%; background: linear-gradient(90deg, transparent, #3b82f6, #0ea5e9, transparent); animation: visora-loading 1.5s infinite ease-in-out; }
+
+    .visora-loading-bar { position: absolute; top: 0; left: 0; height: 2px; width: 100%; background: #f4f4f5; overflow: hidden; display: none; }
+    .visora-loading-bar::after { content: ''; position: absolute; top: 0; left: 0; height: 100%; width: 40%; background: linear-gradient(90deg, transparent, #6366f1, #818cf8, transparent); animation: visora-loading 1.5s infinite ease-in-out; }
     @keyframes visora-loading { 0% { transform: translateX(-100%); } 100% { transform: translateX(300%); } }
-    .visora-panel-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
-    .visora-panel-logo { width: 24px; height: 24px; background: linear-gradient(135deg, #3b82f6, #0ea5e9); border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: white; flex-shrink: 0; box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4); }
-    .visora-panel-title { font-size: 14px; font-weight: 600; color: #f8fafc; letter-spacing: 0.01em; }
-    .visora-panel-close { margin-left: auto; background: none; border: none; color: #64748b; cursor: pointer; font-size: 16px; padding: 4px; border-radius: 6px; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
-    .visora-panel-close:hover { background: rgba(255,255,255,0.1); color: #f1f5f9; }
 
-    .visora-panel-info { background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.04); border-radius: 12px; padding: 12px; margin-bottom: 16px; font-size: 12px; color: #94a3b8; line-height: 1.6; word-break: break-all; }
-    .visora-panel-info strong { color: #e2e8f0; font-weight: 600; }
-    .visora-panel textarea { width: 100%; box-sizing: border-box; min-height: 90px; resize: none; background: rgba(0,0,0,0.3); color: #f8fafc; border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 14px; font: 400 13px/1.5 'Inter', system-ui, sans-serif; outline: none; transition: all 0.2s; }
-    .visora-panel textarea:focus { border-color: rgba(59, 130, 246, 0.6); background: rgba(0,0,0,0.5); box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15); }
-    .visora-panel textarea::placeholder { color: #475569; }
-    .visora-panel-actions { display: flex; gap: 10px; margin-top: 16px; }
+    .visora-panel-header { display: flex; align-items: center; gap: 10px; padding: 16px 20px 0 20px; }
+    .visora-panel-logo { width: 24px; height: 24px; background: #6366f1; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .visora-panel-logo svg { width: 14px; height: 14px; color: white; }
+    .visora-panel-title { font-size: 14px; font-weight: 600; color: #18181b; letter-spacing: -0.01em; }
+    .visora-panel-close { margin-left: auto; background: none; border: none; color: #a1a1aa; cursor: pointer; width: 28px; height: 28px; border-radius: 6px; transition: all 0.15s; display: flex; align-items: center; justify-content: center; font-size: 0; }
+    .visora-panel-close svg { width: 16px; height: 16px; }
+    .visora-panel-close:hover { background: #f4f4f5; color: #18181b; }
 
-    .visora-btn { cursor: pointer; border: none; border-radius: 10px; padding: 10px 16px; font: 500 13px/1 'Inter', system-ui, sans-serif; transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1); letter-spacing: 0.01em; display: flex; align-items: center; justify-content: center; gap: 6px; }
-    .visora-btn-primary { background: linear-gradient(135deg, #2563eb, #0ea5e9); color: white; flex: 1; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); border: 1px solid rgba(255,255,255,0.1); }
-    .visora-btn-primary:hover { box-shadow: 0 6px 20px rgba(37, 99, 235, 0.45); transform: translateY(-1px); filter: brightness(1.1); }
-    .visora-btn-primary:active { transform: translateY(0); filter: brightness(1); }
-    .visora-btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; filter: none; }
-    .visora-btn-secondary { background: rgba(255,255,255,0.05); color: #cbd5e1; border: 1px solid rgba(255,255,255,0.08); }
-    .visora-btn-secondary:hover { background: rgba(255,255,255,0.1); color: #f8fafc; }
+    .visora-panel-info { margin: 12px 20px; background: #fafafa; border: 1px solid #f4f4f5; border-radius: 10px; padding: 10px 12px; font-size: 12px; color: #71717a; line-height: 1.5; word-break: break-all; }
+    .visora-panel-info strong { color: #18181b; font-weight: 600; }
+    .visora-panel-info .info-file { color: #6366f1; font-weight: 500; }
 
-    .visora-toast { position: fixed; bottom: 24px; right: 24px; z-index: 1000001; padding: 12px 20px; border-radius: 12px; font: 500 13px/1.4 'Inter', system-ui, sans-serif; box-shadow: 0 10px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1); animation: visora-toast-in 0.4s cubic-bezier(0.22, 1, 0.36, 1); display: flex; align-items: center; gap: 10px; backdrop-filter: blur(16px); color: white; border: 1px solid rgba(255,255,255,0.08); }
-    .visora-toast-success { background: rgba(16, 185, 129, 0.8); }
-    .visora-toast-error { background: rgba(239, 68, 68, 0.8); }
-    @keyframes visora-toast-in { from { opacity: 0; transform: translateY(16px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    .visora-panel-body { padding: 0 20px 20px 20px; }
+    .visora-panel textarea { width: 100%; box-sizing: border-box; min-height: 80px; resize: none; background: #fafafa; color: #18181b; border: 1px solid #e4e4e7; border-radius: 10px; padding: 12px; font: 400 13px/1.6 'Inter', system-ui, sans-serif; outline: none; transition: all 0.15s; }
+    .visora-panel textarea:focus { border-color: #6366f1; background: #ffffff; box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1); }
+    .visora-panel textarea::placeholder { color: #a1a1aa; }
+    .visora-panel-actions { display: flex; gap: 8px; margin-top: 12px; }
 
-    .visora-spinner { width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.25); border-top-color: white; border-radius: 50%; animation: visora-spin 0.6s linear infinite; display: inline-block; }
+    .visora-btn { cursor: pointer; border: none; border-radius: 8px; padding: 9px 16px; font: 500 13px/1 'Inter', system-ui, sans-serif; transition: all 0.15s cubic-bezier(0.22, 1, 0.36, 1); letter-spacing: 0; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .visora-btn-primary { background: #18181b; color: #ffffff; flex: 1; }
+    .visora-btn-primary:hover { background: #27272a; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .visora-btn-primary:active { transform: translateY(0); box-shadow: none; }
+    .visora-btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .visora-btn-secondary { background: #ffffff; color: #52525b; border: 1px solid #e4e4e7; }
+    .visora-btn-secondary:hover { background: #fafafa; color: #18181b; border-color: #d4d4d8; }
+
+    /* ── Toast ── */
+    .visora-toast { position: fixed; bottom: 24px; right: 24px; z-index: 1000001; padding: 10px 16px; border-radius: 10px; font: 500 13px/1.4 'Inter', system-ui, sans-serif; box-shadow: 0 8px 24px rgba(0,0,0,0.12); animation: visora-toast-in 0.3s cubic-bezier(0.22, 1, 0.36, 1); display: flex; align-items: center; gap: 8px; color: white; }
+    .visora-toast-success { background: #18181b; }
+    .visora-toast-error { background: #dc2626; }
+    @keyframes visora-toast-in { from { opacity: 0; transform: translateY(12px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+    .visora-spinner { width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.2); border-top-color: white; border-radius: 50%; animation: visora-spin 0.6s linear infinite; display: inline-block; }
     @keyframes visora-spin { to { transform: rotate(360deg); } }
 
-    .visora-toggle { position: fixed; bottom: 20px; right: 20px; z-index: 999990; background: rgba(15, 17, 21, 0.85); backdrop-filter: blur(12px); color: #64748b; font: 600 12px/1 'Inter', system-ui, sans-serif; padding: 10px 16px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 8px; }
-    .visora-toggle:hover { background: rgba(25, 27, 33, 0.95); color: #e2e8f0; border-color: rgba(255,255,255,0.2); }
-    .visora-toggle.active { background: linear-gradient(135deg, #2563eb, #0ea5e9); color: white; border-color: rgba(255,255,255,0.15); box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4); }
-    .visora-toggle-dot { width: 8px; height: 8px; border-radius: 50%; background: #64748b; transition: all 0.2s; }
-    .visora-toggle.active .visora-toggle-dot { background: #fff; box-shadow: 0 0 8px #fff; }
+    /* ── Toggle Button ── */
+    .visora-toggle { position: fixed; bottom: 20px; right: 20px; z-index: 999990; background: #ffffff; color: #71717a; font: 600 12px/1 'Inter', system-ui, sans-serif; padding: 9px 14px; border-radius: 100px; border: 1px solid #e4e4e7; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04); display: flex; align-items: center; gap: 7px; }
+    .visora-toggle:hover { border-color: #d4d4d8; color: #18181b; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .visora-toggle.active { background: #18181b; color: #ffffff; border-color: #18181b; box-shadow: 0 4px 16px rgba(0,0,0,0.16); }
+    .visora-toggle-dot { width: 7px; height: 7px; border-radius: 50%; background: #a1a1aa; transition: all 0.2s; }
+    .visora-toggle.active .visora-toggle-dot { background: #22c55e; box-shadow: 0 0 6px rgba(34, 197, 94, 0.6); }
   `;
 
   const styleEl = document.createElement('style');
