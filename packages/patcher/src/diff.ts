@@ -3,12 +3,12 @@ import * as path from 'path';
 import chalk from 'chalk';
 
 export function applyPatch(
-  projectRoot: string,
+  appRoot: string,
   filePath: string,
   originalContent: string,
   modifiedContent: string
 ): boolean {
-  const fullPath = path.join(projectRoot, filePath);
+  const fullPath = path.join(appRoot, filePath);
   
   if (!fs.existsSync(fullPath)) {
     console.error(chalk.red(`File not found: ${fullPath}`));

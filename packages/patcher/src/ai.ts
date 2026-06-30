@@ -9,14 +9,13 @@ export interface PatchResult {
   modifiedContent: string;
 }
 
-export async function generatePatch(task: any): Promise<PatchResult | null> {
+export async function generatePatch(task: any, appRoot: string): Promise<PatchResult | null> {
   const { instruction, sourceFile, sourceLine, componentName, tagName, props, ast, computedStyles } = task.selection;
   
   // Read the actual source code of the file to give the AI context
-  const projectRoot = process.env.VISORA_PROJECT_ROOT || process.cwd();
   let sourceCode = '';
   try {
-    sourceCode = fs.readFileSync(path.join(projectRoot, sourceFile), 'utf-8');
+    sourceCode = fs.readFileSync(path.join(appRoot, sourceFile), 'utf-8');
   } catch (e) {
     throw new Error(`Could not read source file: ${sourceFile}`);
   }
