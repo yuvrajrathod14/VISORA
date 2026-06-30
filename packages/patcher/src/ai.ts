@@ -143,10 +143,15 @@ function parseAIResponse(text: string | undefined): PatchResult | null {
     const jsonStr = text.slice(start, end + 1);
     const result = JSON.parse(jsonStr);
     
-    if (result.filePath && result.originalContent && result.modifiedContent) {
+    if (
+      typeof result.filePath === 'string' && 
+      typeof result.originalContent === 'string' && 
+      typeof result.modifiedContent === 'string'
+    ) {
       return result;
     } else {
       console.error("  [visora] AI JSON is missing required fields (filePath, originalContent, modifiedContent).");
+      console.error("  Parsed Object:", result);
     }
   } catch (e) {
     console.error("  [visora] Failed to parse AI JSON response. Error:", e);
