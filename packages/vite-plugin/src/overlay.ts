@@ -6,6 +6,9 @@ import * as htmlToImage from 'html-to-image';
  * Injected into the browser by the Vite plugin (dev-only).
  */
 (function visoraOverlay() {
+  if ((window as any).__VISORA_INJECTED) return;
+  (window as any).__VISORA_INJECTED = true;
+
   const STYLES = `
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
