@@ -1,5 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
 import OpenAI from 'openai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -49,6 +50,7 @@ Reply ONLY with a JSON object in this exact format (no markdown, no reasoning):
 `;
 
   if (process.env.ANTHROPIC_API_KEY) {
+    console.log('[visora] Using Anthropic (Claude 3.5 Sonnet)');
     const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
     const msg = await anthropic.messages.create({
       model: "claude-3-5-sonnet-20241022",
@@ -60,6 +62,7 @@ Reply ONLY with a JSON object in this exact format (no markdown, no reasoning):
   } 
   
   if (process.env.OPENAI_API_KEY) {
+    console.log('[visora] Using OpenAI (GPT-4o)');
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
     const completion = await openai.chat.completions.create({
       model: "gpt-4o",
@@ -72,7 +75,39 @@ Reply ONLY with a JSON object in this exact format (no markdown, no reasoning):
     return parseAIResponse(completion.choices[0].message.content || '');
   }
 
-  throw new Error("No AI Provider configured. Please set ANTHROPIC_API_KEY or OPENAI_API_KEY in your .env file.");
+  if (process.env.GEMINI_API_KEY) {
+    console.log('[visora] Using Google Gemini');
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+    const result = await model.generateContent({
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+      generationConfig: { responseMimeType: "application/json" }
+    });
+    return parseAIResponse(result.response.text());
+  }
+
+  if (process.env.OLLAMA_URL) {
+    const ollamaModel = process.env.OLLAMA_MODEL || 'llama3';
+    console.log(`[visora] Using Local Ollama (${ollamaModel})`);
+    try {
+      const response = await fetch(`${process.env.OLLAMA_URL}/api/generate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: ollamaModel,
+          prompt: "You must reply ONLY in valid JSON.\n\n" + prompt,
+          format: 'json',
+          stream: false
+        })
+      });
+      const data = await response.json() as { response: string };
+      return parseAIResponse(data.response);
+    } catch (e: any) {
+      throw new Error(`Failed to connect to Ollama at ${process.env.OLLAMA_URL}: ${e.message}`);
+    }
+  }
+
+  throw new Error("No AI Provider configured. Please set ANTHROPIC_API_KEY, OPENAI_API_KEY, GEMINI_API_KEY, or OLLAMA_URL in your .env file.");
 }
 
 function parseAIResponse(text: string): PatchResult | null {
