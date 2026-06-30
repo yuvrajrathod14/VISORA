@@ -140,6 +140,38 @@ function patchNextLayout(targetDir: string): boolean {
   return true;
 }
 
+function createNextApiRoute(targetDir: string) {
+  // Check for App Router vs Pages Router
+  const isAppRouter = fs.existsSync(path.join(targetDir, 'app')) || fs.existsSync(path.join(targetDir, 'src', 'app'));
+  const isSrc = fs.existsSync(path.join(targetDir, 'src'));
+
+  let apiDir = '';
+  let fileName = '';
+  let content = '';
+
+  if (isAppRouter) {
+    const base = isSrc ? 'src/app' : 'app';
+    apiDir = path.join(targetDir, base, 'api', 'visora');
+    fileName = 'route.ts'; // We'll just default to .ts, if they don't have TS Next.js compiles it anyway
+    content = `export { POST } from '@visora/next-plugin/api';\n`;
+  } else {
+    const base = isSrc ? 'src/pages' : 'pages';
+    apiDir = path.join(targetDir, base, 'api');
+    fileName = 'visora.ts';
+    content = `export { POST as default } from '@visora/next-plugin/api';\n`;
+  }
+
+  if (!fs.existsSync(apiDir)) {
+    fs.mkdirSync(apiDir, { recursive: true });
+  }
+
+  const filePath = path.join(apiDir, fileName);
+  if (!fs.existsSync(filePath)) {
+    fs.writeFileSync(filePath, content, 'utf-8');
+  }
+}
+
+
 export async function runInit(projectRoot: string) {
   console.log();
   const pm = detectPackageManager(projectRoot);
@@ -155,10 +187,11 @@ export async function runInit(projectRoot: string) {
     process.exit(1);
   }
 
-  const spinnerConfig = ora(`Patching ${framework === 'next' ? 'layout' : 'vite.config'}...`).start();
+  const spinnerConfig = ora(`Patching ${framework === 'next' ? 'layout & api route' : 'vite.config'}...`).start();
   try {
     if (framework === 'next') {
       patchNextLayout(projectRoot);
+      createNextApiRoute(projectRoot);
     } else {
       patchViteConfig(projectRoot);
     }
