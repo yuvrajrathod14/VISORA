@@ -92,23 +92,23 @@ If this is your first time, Visora will launch an **interactive setup wizard** t
 
 ## 🔌 Auto-Install into Your Own Projects
 
-Want to use Visora in your own Next.js or Vite apps? We've built an automated setup script that does everything for you.
+Want to use Visora in your own Next.js or Vite apps? You don't need to clone this repository anymore! Visora is available globally on NPM.
 
-1. Clone this repository anywhere on your machine.
-2. Run the hook command and point it to your external project directory:
+1. Open your terminal inside your external project directory.
+2. Run the initialization command:
 ```bash
-npm run hook ../path-to-your-project
+npx @visora/patcher init
 ```
 This script will automatically:
 - Detect your framework (Next.js, Vite React, or Vue).
-- Install the required Visora packages into your project.
+- Install the required `@visora` packages from the NPM registry.
 - Safely inject the Visora tracker into your `vite.config.ts` or Next.js `app/layout.tsx`.
 
 Once it's hooked, using Visora is just 2 simple steps:
 
-**Step 1. Run the Daemon (in the Visora folder)**
+**Step 1. Run the Daemon (in any terminal)**
 ```bash
-npm run visora
+npx visora
 ```
 
 **Step 2. Start Your App (in your project folder)**

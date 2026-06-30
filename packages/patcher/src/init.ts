@@ -30,14 +30,11 @@ function detectFramework(targetDir: string) {
 
 function installDependencies(targetDir: string, pm: string, framework: string) {
   const cmd = pm === 'npm' ? 'npm install -D' : `${pm} add -D`;
-  const visoraRoot = path.resolve(__dirname, '../../..');
-  const pluginPath = framework === 'next' 
-    ? path.join(visoraRoot, 'packages/next-plugin')
-    : path.join(visoraRoot, 'packages/vite-plugin');
-  const patcherPath = path.join(visoraRoot, 'packages/patcher');
+  const pluginPkg = framework === 'next' ? '@visora/next-plugin' : '@visora/vite-plugin';
+  const patcherPkg = '@visora/patcher';
   
   try {
-    execSync(`${cmd} "${pluginPath}" "${patcherPath}"`, { cwd: targetDir, stdio: 'pipe' });
+    execSync(`${cmd} ${pluginPkg} ${patcherPkg}`, { cwd: targetDir, stdio: 'pipe' });
   } catch (e: any) {
     throw new Error(e.stderr ? e.stderr.toString() : e.message);
   }

@@ -28,8 +28,11 @@
   "devDependencies": {
     "@types/express": "^5.0.6",
     "@types/node": "^22.20.0",
-    "@visora/vite-plugin": "file:../vite-plugin",
+    "@visora/vite-plugin": "workspace:*",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

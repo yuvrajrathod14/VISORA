@@ -9,12 +9,14 @@
     ".": {
       "import": "./dist/index.mjs",
       "require": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     },
     "./api": {
       "import": "./dist/api.mjs",
       "require": "./dist/api.js",
-      "types": "./dist/api.d.ts"
+      "types": "./dist/api.d.ts",
+      "default": "./dist/api.js"
     }
   },
   "scripts": {
@@ -31,5 +33,8 @@
     "typescript": "^5.0.0",
     "@types/react": "^18.0.0",
     "@types/node": "^20.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
