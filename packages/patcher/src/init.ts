@@ -29,7 +29,7 @@ function installDependencies(targetDir: string, pm: string) {
   const visoraRoot = path.resolve(__dirname, '../../..');
   const vitePluginPath = path.join(visoraRoot, 'packages/vite-plugin');
   const patcherPath = path.join(visoraRoot, 'packages/patcher');
-  
+
   try {
     execSync(`${cmd} "${vitePluginPath}" "${patcherPath}"`, { cwd: targetDir, stdio: 'pipe' });
   } catch (e: any) {
@@ -51,7 +51,7 @@ function patchViteConfig(targetDir: string): boolean {
     }
   }
 
-  if (!configPath) return false;
+  if (!configPath) throw new Error('Could not find vite.config.ts, vite.config.js, or vite.config.mjs in the project root.');
   if (content.includes('visora()')) return true; // already patched
 
   // 1. Inject Import
@@ -69,14 +69,13 @@ function patchViteConfig(targetDir: string): boolean {
   // Look for plugins: [
   const pluginsRegex = /plugins:\s*\[([\s\S]*?)\]/;
   const match = content.match(pluginsRegex);
-  
+
   if (match) {
     const currentPlugins = match[1];
     const newPlugins = currentPlugins.trim().length > 0 ? `${currentPlugins.trim()}, visora()` : `visora()`;
     content = content.replace(pluginsRegex, `plugins: [\n    ${newPlugins}\n  ]`);
   } else {
-    // If no plugins array exists, this regex might be too simple, but usually it exists in Vite React projects.
-    return false;
+    throw new Error('Could not find a plugins array in your vite.config file.');
   }
 
   fs.writeFileSync(configPath, content, 'utf-8');
@@ -86,7 +85,7 @@ function patchViteConfig(targetDir: string): boolean {
 export async function runInit(projectRoot: string) {
   console.log();
   const pm = detectPackageManager(projectRoot);
-  
+
   const spinnerDeps = ora(`Installing Visora engines using ${pm}...`).start();
   try {
     installDependencies(projectRoot, pm);
@@ -99,14 +98,11 @@ export async function runInit(projectRoot: string) {
 
   const spinnerConfig = ora(`Patching vite.config...`).start();
   try {
-    const patched = patchViteConfig(projectRoot);
-    if (patched) {
-      spinnerConfig.succeed(SUCCESS(`vite.config patched successfully.`));
-    } else {
-      spinnerConfig.warn(chalk.yellow(`Could not auto-patch vite.config. Please add the visora plugin manually.`));
-    }
-  } catch (e) {
-    spinnerConfig.fail(FAIL(`Failed to patch vite.config.`));
+    patchViteConfig(projectRoot);
+    spinnerConfig.succeed(SUCCESS(`vite.config patched successfully.`));
+  } catch (e: any) {
+    spinnerConfig.warn(chalk.yellow(`Could not auto-patch vite.config: ${e.message}`));
+    console.log(DIM('  Please add the visora() plugin manually.'));
   }
 
   console.log();
