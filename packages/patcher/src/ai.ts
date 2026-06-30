@@ -21,7 +21,9 @@ export async function generatePatch(task: any, appRoot: string): Promise<PatchRe
     throw new Error(`Could not read source file: ${sourceFile}`);
   }
 
-  const prompt = `You are an expert frontend AI agent.
+  const fileExtension = path.extname(sourceFile).slice(1) || 'tsx';
+  
+  const prompt = `You are an expert frontend AI agent (Vue, Next.js, React).
 The user wants to make a visual edit to a UI component.
 
 Target File: ${sourceFile}
@@ -36,7 +38,7 @@ Current Props:
 ${JSON.stringify(props, null, 2)}
 
 File Source Code:
-\`\`\`tsx
+\`\`\`${fileExtension}
 ${sourceCode}
 \`\`\`
 

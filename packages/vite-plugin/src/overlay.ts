@@ -148,17 +148,31 @@ import * as htmlToImage from 'html-to-image';
     // Traverse up the fiber tree until we find a component with source code
     while (fiber) {
       if (fiber._debugSource && fiber._debugSource.fileName) {
-        // Find the actual React component function name
         let componentName = 'Component';
         if (fiber.type && typeof fiber.type === 'function' && fiber.type.name) {
           componentName = fiber.type.name;
         } else if (fiber.elementType && typeof fiber.elementType === 'function' && fiber.elementType.name) {
           componentName = fiber.elementType.name;
         }
-        
         return `${fiber._debugSource.fileName}:${fiber._debugSource.lineNumber}:${componentName}`;
       }
       fiber = fiber.return;
+    }
+    return null;
+  }
+
+  function getVueSource(el: HTMLElement): string | null {
+    // In Vue 3 development mode, elements have __vueParentComponent or __vnode attached
+    const instance = (el as any).__vueParentComponent || (el as any).__vnode?.ctx;
+    if (!instance) return null;
+
+    let comp = instance;
+    while (comp) {
+      if (comp.type && comp.type.__file) {
+        const name = comp.type.name || comp.type.__name || 'Component';
+        return `${comp.type.__file}:1:${name}`;
+      }
+      comp = comp.parent;
     }
     return null;
   }
@@ -173,6 +187,10 @@ import * as htmlToImage from 'html-to-image';
         // 2. Try Universal React Fiber Extraction (Next.js, CRA, Turbopack)
         const fiberSrc = getReactFiberSource(el);
         if (fiberSrc) return { element: el, src: fiberSrc };
+
+        // 3. Try Universal Vue 3 / Nuxt 3 Extraction
+        const vueSrc = getVueSource(el);
+        if (vueSrc) return { element: el, src: vueSrc };
       }
       el = el.parentElement;
     }

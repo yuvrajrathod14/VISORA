@@ -51,7 +51,15 @@ pnpm install
 pnpm --filter "@visora/*" build
 ```
 
-### 3. Start the Demo App
+### Supported Frameworks
+
+Visora currently supports the following frameworks and build tools:
+- **React (Vite)**
+- **Next.js (App Router & Pages Router)**
+- **Vue 3 (Vite)** (In Progress)
+- **Nuxt 3** (In Progress)
+
+## Quick Start the Demo App
 ```bash
 pnpm dev
 ```
@@ -97,12 +105,9 @@ The Visora CLI is a professional-grade developer tool with full command support.
 
 Since Visora is not yet published to NPM, you can use our 1-click installer to automatically link it into any Vite/React project.
 
-### Automated Installation
-Simply open a terminal in your project folder and run:
-```bash
-npx visora init
-```
-*Visora will auto-detect your environment, install the dependencies, and autonomously inject the plugin into your `vite.config.ts`.*
+### Automated Installer
+
+Run the initialization script from the root of your Vite or Next.js project. Visora will automatically detect your framework, install the correct engines, and patch your configuration file (`vite.config.ts` or `app/layout.tsx`).*
 
 ### Step 2: Start Coding!
 1. Start your live project (`npm run dev`).
