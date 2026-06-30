@@ -56,6 +56,49 @@ pnpm dev
 ```
 *Navigate to `http://localhost:5174/` in your browser. The Visora overlay will be active in the bottom left corner.*
 
+## 📦 How to Use Visora in Your OWN Live Project
+
+Since Visora is not yet published to the NPM registry, you can easily use it in any of your live projects right now by linking the local packages.
+
+### Step 1: Prepare the Visora Engine
+First, clone this repository somewhere on your computer and build the core packages:
+```bash
+git clone https://github.com/yuvrajrathod14/VISORA.git
+cd VISORA
+pnpm install
+pnpm --filter "@visora/*" build
+```
+
+### Step 2: Install Visora into your Live Project
+Navigate to your own React/Vite project and install the local Visora packages by pointing directly to the folder paths:
+```bash
+cd /path/to/your/live-project
+
+# Install the Vite Plugin as a dev dependency
+npm install -D /path/to/VISORA/packages/vite-plugin
+
+# (Optional) Install the Patcher Daemon if you want autonomous patching
+npm install -g /path/to/VISORA/packages/patcher
+```
+
+### Step 3: Configure your Vite App
+In your live project, open your `vite.config.ts` (or `.js`) and add the Visora plugin:
+
+```ts
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import visora from '@visora/vite-plugin';
+
+export default defineConfig({
+  plugins: [react(), visora()]
+});
+```
+
+### Step 4: Start Coding!
+1. Start your live project (`npm run dev`).
+2. You will see the Visora overlay in your app. Alt+Click components to queue up instructions!
+3. To process the queue, either start the autonomous daemon inside your project folder (`visora`) or connect your IDE to the MCP server!
+
 ---
 
 ## 🛠️ The Dual-Workflow Architecture
