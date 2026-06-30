@@ -7,8 +7,8 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
-import type { VisoraContextFile } from '@visora/shared';
-import { buildRichContext } from '@visora/context';
+import type { VisoraContextFile } from 'visora-shared';
+import { buildRichContext } from 'visora-context';
 
 const PROJECT_ROOT = process.env.VISORA_PROJECT_ROOT || process.cwd();
 

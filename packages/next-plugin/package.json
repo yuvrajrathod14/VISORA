@@ -1,5 +1,5 @@
 {
-  "name": "@visora/next-plugin",
+  "name": "visora-next-plugin",
   "version": "1.0.1",
   "description": "Next.js integration for Visora",
   "main": "dist/index.js",

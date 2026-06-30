@@ -518,7 +518,7 @@ import * as htmlToImage from 'html-to-image';
           renderHighlights();
 
           const selections = selectedEls.map(el => buildContext(el, instruction));
-          const endpoint = detectFramework() === 'nextjs' ? '/api/visora' : '/@visora/context';
+          const endpoint = detectFramework() === 'nextjs' ? '/api/visora' : '/visora-context';
 
           const res = await fetch(endpoint, {
             method: 'POST',

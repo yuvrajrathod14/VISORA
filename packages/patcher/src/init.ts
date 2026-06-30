@@ -30,8 +30,8 @@ function detectFramework(targetDir: string) {
 
 function installDependencies(targetDir: string, pm: string, framework: string) {
   const cmd = pm === 'npm' ? 'npm install -D' : `${pm} add -D`;
-  const pluginPkg = framework === 'next' ? '@visora/next-plugin' : '@visora/vite-plugin';
-  const patcherPkg = '@visora/patcher';
+  const pluginPkg = framework === 'next' ? 'visora-next-plugin' : 'visora-vite-plugin';
+  const patcherPkg = 'visora';
   
   try {
     execSync(`${cmd} ${pluginPkg} ${patcherPkg}`, { cwd: targetDir, stdio: 'pipe' });
@@ -58,7 +58,7 @@ function patchViteConfig(targetDir: string): boolean {
   if (content.includes('visora()')) return true; // already patched
 
   // 1. Inject Import
-  const importStatement = `import visora from '@visora/vite-plugin';\n`;
+  const importStatement = `import visora from 'visora-vite-plugin';\n`;
   // Find last import
   const lastImportIndex = content.lastIndexOf('import ');
   if (lastImportIndex !== -1) {
@@ -109,7 +109,7 @@ function patchNextLayout(targetDir: string): boolean {
   if (content.includes('<VisoraTracker')) return true; // already patched
 
   // Inject Import
-  const importStatement = `import { VisoraTracker } from '@visora/next-plugin';\n`;
+  const importStatement = `import { VisoraTracker } from 'visora-next-plugin';\n`;
   const lastImportIndex = content.lastIndexOf('import ');
   if (lastImportIndex !== -1) {
     const endOfLastImport = content.indexOf('\n', lastImportIndex);
@@ -150,12 +150,12 @@ function createNextApiRoute(targetDir: string) {
     const base = isSrc ? 'src/app' : 'app';
     apiDir = path.join(targetDir, base, 'api', 'visora');
     fileName = 'route.ts'; // We'll just default to .ts, if they don't have TS Next.js compiles it anyway
-    content = `export { POST } from '@visora/next-plugin/api';\n`;
+    content = `export { POST } from 'visora-next-plugin/api';\n`;
   } else {
     const base = isSrc ? 'src/pages' : 'pages';
     apiDir = path.join(targetDir, base, 'api');
     fileName = 'visora.ts';
-    content = `export { POST as default } from '@visora/next-plugin/api';\n`;
+    content = `export { POST as default } from 'visora-next-plugin/api';\n`;
   }
 
   if (!fs.existsSync(apiDir)) {

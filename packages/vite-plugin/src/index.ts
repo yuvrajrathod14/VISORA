@@ -1,5 +1,5 @@
 /**
- * @visora/vite-plugin
+ * visora-vite-plugin
  *
  * The core Vite plugin that powers Visora:
  * 1. Tags every JSX opening element with data-visora-src="relative/path:line"
@@ -7,7 +7,7 @@
  * 3. Exposes dev server middleware for context bridging
  *
  * Usage:
- *   import visora from '@visora/vite-plugin';
+ *   import visora from 'visora-vite-plugin';
  *   export default defineConfig({ plugins: [react(), visora()] });
  */
 
@@ -15,7 +15,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { Plugin, ViteDevServer } from 'vite';
-import type { VisoraPluginOptions, VisoraContextFile } from '@visora/shared';
+import type { VisoraPluginOptions, VisoraContextFile } from 'visora-shared';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DEFAULT_CONTEXT_DIR = '.visora';
@@ -124,7 +124,7 @@ export default function visoraPlugin(options: VisoraPluginOptions = {}): Plugin 
       return [
         {
           tag: 'script',
-          attrs: { type: 'module', src: `/@visora/overlay.js?v=${Date.now()}` },
+          attrs: { type: 'module', src: `/visora-overlay.js?v=${Date.now()}` },
           injectTo: 'body' as const,
         },
       ];
@@ -142,7 +142,7 @@ export default function visoraPlugin(options: VisoraPluginOptions = {}): Plugin 
       }
 
       // Serve the overlay client script
-      server.middlewares.use('/@visora/overlay.js', (_req, res) => {
+      server.middlewares.use('/visora-overlay.js', (_req, res) => {
         const overlayPath = path.join(__dirname, 'overlay.js');
         res.setHeader('Content-Type', 'application/javascript');
         res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
@@ -156,7 +156,7 @@ export default function visoraPlugin(options: VisoraPluginOptions = {}): Plugin 
       });
 
       // Context bridge: browser POSTs selection, MCP/AI reads it
-      server.middlewares.use('/@visora/context', (req, res) => {
+      server.middlewares.use('/visora-context', (req, res) => {
         if (req.method === 'POST') {
           let body = '';
           req.on('data', (chunk: Buffer) => (body += chunk));
@@ -230,7 +230,7 @@ export default function visoraPlugin(options: VisoraPluginOptions = {}): Plugin 
       });
 
       // Reload endpoint — triggers full page reload via HMR
-      server.middlewares.use('/@visora/reload', (_req, res) => {
+      server.middlewares.use('/visora-reload', (_req, res) => {
         server.ws.send({ type: 'full-reload' });
         res.statusCode = 204;
         res.end();

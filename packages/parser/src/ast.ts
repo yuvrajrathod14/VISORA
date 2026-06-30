@@ -76,7 +76,7 @@ export function analyzeComponentCode(sourceCode: string, componentName: string):
       }
     });
   } catch (error) {
-    console.error('[@visora/parser] Failed to parse AST:', error);
+    console.error('[visora-parser] Failed to parse AST:', error);
   }
 
   return result;

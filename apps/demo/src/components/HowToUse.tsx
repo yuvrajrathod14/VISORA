@@ -75,7 +75,7 @@ Env:     VISORA_PROJECT_ROOT=/path/to/VISORA
 npm install -D /path/to/VISORA/packages/vite-plugin
 
 <span className="code-comment"># 2. Add to vite.config.ts</span>
-import visora from '@visora/vite-plugin';
+import visora from 'visora-vite-plugin';
 export default defineConfig({`{`}
   plugins: [react(), visora()]
 {`}`});

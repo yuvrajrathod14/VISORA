@@ -1,5 +1,5 @@
 {
-  "name": "@visora/parser",
+  "name": "visora-parser",
   "version": "0.1.0",
   "type": "module",
   "main": "./dist/index.js",
@@ -16,7 +16,7 @@
   "dependencies": {
     "@babel/parser": "^7.26.2",
     "@babel/traverse": "^7.25.9",
-    "@visora/shared": "workspace:*"
+    "visora-shared": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.7.0",

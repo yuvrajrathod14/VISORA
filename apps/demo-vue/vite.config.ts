@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import visora from '@visora/vite-plugin';
+import visora from 'visora-vite-plugin';
 
 // https://vite.dev/config/
 export default defineConfig({

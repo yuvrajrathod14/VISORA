@@ -1,5 +1,5 @@
 {
-  "name": "@visora/context",
+  "name": "visora-context",
   "version": "0.1.0",
   "type": "module",
   "main": "./dist/index.js",
@@ -14,8 +14,8 @@
     "build": "tsc"
   },
   "dependencies": {
-    "@visora/shared": "workspace:*",
-    "@visora/parser": "workspace:*"
+    "visora-shared": "workspace:*",
+    "visora-parser": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.7.0",

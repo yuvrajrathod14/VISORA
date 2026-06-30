@@ -1,5 +1,5 @@
 {
-  "name": "@visora/mcp-server",
+  "name": "visora-mcp-server",
   "version": "0.1.0",
   "type": "module",
   "main": "./dist/index.js",
@@ -11,8 +11,8 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.1",
-    "@visora/shared": "workspace:*",
-    "@visora/context": "workspace:*"
+    "visora-shared": "workspace:*",
+    "visora-context": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.7.0",

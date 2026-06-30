@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import type { VisoraSelection } from '@visora/shared';
-import { analyzeComponentCode } from '@visora/parser';
+import type { VisoraSelection } from 'visora-shared';
+import { analyzeComponentCode } from 'visora-parser';
 
 export interface VisoraRichContext {
   instruction: string;
@@ -50,7 +50,7 @@ export function buildRichContext(
         const sourceCode = fs.readFileSync(filePath, 'utf-8');
         astData = analyzeComponentCode(sourceCode, selection.fiber.componentName);
       } catch (e) {
-        console.error('[@visora/context] Failed to read or parse source file:', e);
+        console.error('[visora-context] Failed to read or parse source file:', e);
       }
     }
   }
