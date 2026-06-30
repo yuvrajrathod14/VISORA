@@ -317,18 +317,28 @@ async function processQueue(targetQueuePath: string) {
   idleSpinner.start();
 }
 
-// Watch any queue.json inside a .visora directory anywhere in the workspace
+// Run manual scan on startup and watch exactly those files (solves Windows glob issues)
+const initialQueues = findQueueFiles(projectRoot);
+initialQueues.forEach(qPath => {
+  processQueue(qPath);
+  
+  // Watch this specific file reliably
+  chokidar.watch(qPath, { 
+    persistent: true,
+    ignoreInitial: true
+  }).on('change', () => {
+    processQueue(qPath);
+  });
+});
+
+// Also watch for newly created .visora/queue.json files in case Vite is started after Visora
 chokidar.watch('**/.visora/queue.json', { 
   cwd: projectRoot,
   persistent: true,
   ignoreInitial: true,
   ignored: ['**/node_modules/**', '**/dist/**']
 }).on('add', (relativePath) => {
-  processQueue(path.join(projectRoot, relativePath));
-}).on('change', (relativePath) => {
-  processQueue(path.join(projectRoot, relativePath));
+  const fullPath = path.join(projectRoot, relativePath);
+  chokidar.watch(fullPath, { persistent: true }).on('change', () => processQueue(fullPath));
+  processQueue(fullPath);
 });
-
-// Run manual scan on startup
-const initialQueues = findQueueFiles(projectRoot);
-initialQueues.forEach(qPath => processQueue(qPath));
