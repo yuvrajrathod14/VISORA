@@ -1,5 +1,5 @@
 {
-  "name": "visora",
+  "name": "visora-cli",
   "version": "0.1.0",
   "description": "Visora autonomous AI patcher daemon",
   "main": "dist/index.js",

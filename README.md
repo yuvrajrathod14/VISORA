@@ -97,7 +97,7 @@ Want to use Visora in your own Next.js or Vite apps? You don't need to clone thi
 1. Open your terminal inside your external project directory.
 2. Run the initialization command:
 ```bash
-npx visora init
+npx visora-cli init
 ```
 This script will automatically:
 - Detect your framework (Next.js, Vite React, or Vue).

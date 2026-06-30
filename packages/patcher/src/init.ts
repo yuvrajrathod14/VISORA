@@ -31,7 +31,7 @@ function detectFramework(targetDir: string) {
 function installDependencies(targetDir: string, pm: string, framework: string) {
   const cmd = pm === 'npm' ? 'npm install -D' : `${pm} add -D`;
   const pluginPkg = framework === 'next' ? 'visora-next-plugin' : 'visora-vite-plugin';
-  const patcherPkg = 'visora';
+  const patcherPkg = 'visora-cli';
   
   try {
     execSync(`${cmd} ${pluginPkg} ${patcherPkg}`, { cwd: targetDir, stdio: 'pipe' });
