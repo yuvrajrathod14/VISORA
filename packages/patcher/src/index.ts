@@ -462,12 +462,14 @@ async function processQueue(targetQueuePath: string) {
   }
 
   for (const task of pendingTasks) {
-    const isMulti = !!task.selection.selections;
-    const firstSel = isMulti ? task.selection.selections[0] : task.selection;
-    const instruction = isMulti ? task.selection.instruction : task.selection.instruction;
+    // Normalize: Vite stores { selection: { selections, instruction } }, Next.js stores { selections, instruction } flat
+    const sel = task.selection || task;
+    const isMulti = !!(sel.selections);
+    const firstSel = isMulti ? sel.selections[0] : sel;
+    const instruction = sel.instruction || task.instruction || 'unknown';
     const target = firstSel?.componentName || firstSel?.tagName || 'element';
     const file = firstSel?.sourceFile || 'unknown';
-    const multiSuffix = (isMulti && task.selection.selections.length > 1) ? ` (+${task.selection.selections.length - 1} more)` : '';
+    const multiSuffix = (isMulti && sel.selections.length > 1) ? ` (+${sel.selections.length - 1} more)` : '';
 
     console.log(ACCENT(`  ● Task`), chalk.white(`"${instruction}"`));
     console.log(DIM(`    ${target} → ${file}${multiSuffix}`));
