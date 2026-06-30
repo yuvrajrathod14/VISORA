@@ -48,13 +48,16 @@ export async function checkAndRunOnboarding(projectRoot: string) {
 
   if (provider === 'anthropic') {
     const key = await password({ message: 'Enter your Anthropic API Key (sk-ant-...):', mask: '*' });
-    envContent += `ANTHROPIC_API_KEY=${key}\n`;
+    const model = await input({ message: 'Enter Model Name:', default: 'claude-3-5-sonnet-20241022' });
+    envContent += `ANTHROPIC_API_KEY=${key}\nANTHROPIC_MODEL=${model}\n`;
   } else if (provider === 'openai') {
     const key = await password({ message: 'Enter your OpenAI API Key (sk-proj-...):', mask: '*' });
-    envContent += `OPENAI_API_KEY=${key}\n`;
+    const model = await input({ message: 'Enter Model Name:', default: 'gpt-4o' });
+    envContent += `OPENAI_API_KEY=${key}\nOPENAI_MODEL=${model}\n`;
   } else if (provider === 'gemini') {
     const key = await password({ message: 'Enter your Gemini API Key:', mask: '*' });
-    envContent += `GEMINI_API_KEY=${key}\n`;
+    const model = await input({ message: 'Enter Model Name:', default: 'gemini-1.5-pro' });
+    envContent += `GEMINI_API_KEY=${key}\nGEMINI_MODEL=${model}\n`;
   } else if (provider === 'ollama') {
     const url = await input({ message: 'Enter Ollama URL:', default: 'http://localhost:11434' });
     const model = await input({ message: 'Enter Ollama Model:', default: 'llama3' });

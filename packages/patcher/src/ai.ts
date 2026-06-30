@@ -50,10 +50,11 @@ Reply ONLY with a JSON object in this exact format (no markdown, no reasoning):
 `;
 
   if (process.env.ANTHROPIC_API_KEY) {
-    console.log('[visora] Using Anthropic (Claude 3.5 Sonnet)');
+    const modelName = process.env.ANTHROPIC_MODEL || "claude-3-5-sonnet-20241022";
+    console.log(`[visora] Using Anthropic (${modelName})`);
     const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
     const msg = await anthropic.messages.create({
-      model: "claude-3-5-sonnet-20241022",
+      model: modelName,
       max_tokens: 2000,
       system: "You are a helpful coding assistant that outputs strictly valid JSON.",
       messages: [{ role: "user", content: prompt }]
@@ -62,10 +63,11 @@ Reply ONLY with a JSON object in this exact format (no markdown, no reasoning):
   } 
   
   if (process.env.OPENAI_API_KEY) {
-    console.log('[visora] Using OpenAI (GPT-4o)');
+    const modelName = process.env.OPENAI_MODEL || "gpt-4o";
+    console.log(`[visora] Using OpenAI (${modelName})`);
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
     const completion = await openai.chat.completions.create({
-      model: "gpt-4o",
+      model: modelName,
       messages: [
         { role: "system", content: "You are a helpful coding assistant that outputs strictly valid JSON." },
         { role: "user", content: prompt }
@@ -76,9 +78,10 @@ Reply ONLY with a JSON object in this exact format (no markdown, no reasoning):
   }
 
   if (process.env.GEMINI_API_KEY) {
-    console.log('[visora] Using Google Gemini');
+    const modelName = process.env.GEMINI_MODEL || "gemini-1.5-pro";
+    console.log(`[visora] Using Google Gemini (${modelName})`);
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+    const model = genAI.getGenerativeModel({ model: modelName });
     const result = await model.generateContent({
       contents: [{ role: "user", parts: [{ text: prompt }] }],
       generationConfig: { responseMimeType: "application/json" }
