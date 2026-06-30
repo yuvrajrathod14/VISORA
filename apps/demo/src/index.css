@@ -58,7 +58,10 @@ body {
   min-height: 100vh;
   position: relative;
   overflow-x: hidden;
-  perspective: 1200px; /* 3D Root */
+}
+
+#root {
+  perspective: 1200px;
 }
 
 /* ═══════════════════════════════════════════════════════════
