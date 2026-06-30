@@ -25,6 +25,9 @@ OPENAI_API_KEY=sk-proj-...
 
 <span className="code-comment"># 2. Run the background daemon:</span>
 pnpm visora
+
+<span className="code-comment"># Tip: Change AI provider later by running:</span>
+<span className="code-comment"># pnpm visora --config</span>
               </code>
             </pre>
           </div>

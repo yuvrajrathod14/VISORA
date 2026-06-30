@@ -13,8 +13,10 @@ dotenv.config();
 
 const projectRoot = process.env.VISORA_PROJECT_ROOT || process.cwd();
 
-// Run interactive onboarding if no API keys are found
-await checkAndRunOnboarding(projectRoot);
+const forceConfig = process.argv.includes('--config') || process.argv.includes('--setup');
+
+// Run interactive onboarding if no API keys are found, or if --config is passed
+await checkAndRunOnboarding(projectRoot, forceConfig);
 
 // Claude/Anthropic inspired aesthetic
 console.clear();

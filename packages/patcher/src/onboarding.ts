@@ -4,19 +4,25 @@ import { select, password, input } from '@inquirer/prompts';
 import chalk from 'chalk';
 import dotenv from 'dotenv';
 
-export async function checkAndRunOnboarding(projectRoot: string) {
+export async function checkAndRunOnboarding(projectRoot: string, force: boolean = false) {
   // Check if any valid API key is already set
   const hasKey = process.env.ANTHROPIC_API_KEY || 
                  process.env.OPENAI_API_KEY || 
                  process.env.GEMINI_API_KEY || 
                  process.env.OLLAMA_URL;
 
-  if (hasKey) return;
+  if (hasKey && !force) return;
 
-  console.log(chalk.bold.hex('#d97757')('\nVisora Autonomous Agent Setup'));
-  console.log(chalk.gray('──────────────────────────────────────────────────'));
-  console.log(chalk.white('It looks like this is your first time running Visora!'));
-  console.log(chalk.gray('To let the daemon write code for you, you need to configure an AI provider.\n'));
+  if (force) {
+    console.log(chalk.bold.hex('#d97757')('\nVisora Configuration'));
+    console.log(chalk.gray('──────────────────────────────────────────────────'));
+    console.log(chalk.white('Let\'s set up a new AI provider.'));
+  } else {
+    console.log(chalk.bold.hex('#d97757')('\nVisora Autonomous Agent Setup'));
+    console.log(chalk.gray('──────────────────────────────────────────────────'));
+    console.log(chalk.white('It looks like this is your first time running Visora!'));
+    console.log(chalk.gray('To let the daemon write code for you, you need to configure an AI provider.\n'));
+  }
 
   const provider = await select({
     message: 'Which AI Provider would you like to use?',
@@ -48,16 +54,13 @@ export async function checkAndRunOnboarding(projectRoot: string) {
 
   if (provider === 'anthropic') {
     const key = await password({ message: 'Enter your Anthropic API Key (sk-ant-...):', mask: '*' });
-    const model = await input({ message: 'Enter Model Name:', default: 'claude-3-5-sonnet-20241022' });
-    envContent += `ANTHROPIC_API_KEY=${key}\nANTHROPIC_MODEL=${model}\n`;
+    envContent += `ANTHROPIC_API_KEY=${key}\n`;
   } else if (provider === 'openai') {
     const key = await password({ message: 'Enter your OpenAI API Key (sk-proj-...):', mask: '*' });
-    const model = await input({ message: 'Enter Model Name:', default: 'gpt-4o' });
-    envContent += `OPENAI_API_KEY=${key}\nOPENAI_MODEL=${model}\n`;
+    envContent += `OPENAI_API_KEY=${key}\n`;
   } else if (provider === 'gemini') {
     const key = await password({ message: 'Enter your Gemini API Key:', mask: '*' });
-    const model = await input({ message: 'Enter Model Name:', default: 'gemini-1.5-pro' });
-    envContent += `GEMINI_API_KEY=${key}\nGEMINI_MODEL=${model}\n`;
+    envContent += `GEMINI_API_KEY=${key}\n`;
   } else if (provider === 'ollama') {
     const url = await input({ message: 'Enter Ollama URL:', default: 'http://localhost:11434' });
     const model = await input({ message: 'Enter Ollama Model:', default: 'llama3' });
