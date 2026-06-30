@@ -7,10 +7,14 @@ import chalk from 'chalk';
 import ora from 'ora';
 import { generatePatch } from './ai';
 import { applyPatch } from './diff';
+import { checkAndRunOnboarding } from './onboarding';
 
 dotenv.config();
 
 const projectRoot = process.env.VISORA_PROJECT_ROOT || process.cwd();
+
+// Run interactive onboarding if no API keys are found
+await checkAndRunOnboarding(projectRoot);
 
 // Claude/Anthropic inspired aesthetic
 console.clear();
