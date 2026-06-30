@@ -2,22 +2,8 @@
 /**
  * Visora MCP Server
  *
- * Exposes 7 tools for AI coding agents (Cursor, Antigravity, VS Code)
- * to interact with the Visora visual context system.
- *
- * Usage:
- *   VISORA_PROJECT_ROOT=/path/to/project node dist/index.js
- *
- * Or configure in your MCP client (Cursor, Antigravity):
- *   {
- *     "mcpServers": {
- *       "visora": {
- *         "command": "node",
- *         "args": ["/path/to/visora/packages/mcp-server/dist/index.js"],
- *         "env": { "VISORA_PROJECT_ROOT": "/path/to/your/project" }
- *       }
- *     }
- *   }
+ * Exposes 6 tools for AI coding agents (Cursor, Antigravity, VS Code)
+ * to interact with the Visora Multi-Action Queue.
  */
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
@@ -28,10 +14,10 @@ import {
 } from '@modelcontextprotocol/sdk/types.js';
 
 import {
-  inspectComponent,
+  getVisoraQueue,
+  getTaskContext,
+  markTaskStatus,
   getSource,
-  getContext,
-  captureComponent,
   applyPatch,
   saveFile,
   reload,
@@ -42,63 +28,80 @@ import {
 // ═══════════════════════════════════════════════════════════
 const TOOLS = [
   {
-    name: 'inspect_component',
+    name: 'get_visora_queue',
     description:
-      'Returns the full context of the component the developer last selected via Alt+Click ' +
-      'in their running app. Includes source file, line number, outerHTML, computed styles, ' +
-      'React Fiber data (component name, props), DOM hierarchy, and the user\'s instruction. ' +
-      'Call this when the user refers to "the selected component" or asks to apply a visual edit.',
+      'Reads the .visora/queue.json files across the monorepo workspace and returns a list ' +
+      'of all pending UI editing tasks. Each task contains an ID, target component, and ' +
+      'the user\'s natural language instruction. Call this first to discover work to be done.',
     inputSchema: {
       type: 'object' as const,
       properties: {},
+      additionalProperties: false,
+    },
+  },
+  {
+    name: 'get_task_context',
+    description:
+      'Returns a structured, AI-optimized JSON context for a specific task ID in the queue. ' +
+      'Includes component name, file, line, framework, Tailwind classes, props, ' +
+      'parent/child hierarchy, computed styles, and the exact DOM outerHTML. Use this to ' +
+      'understand what needs to be changed before generating a patch.',
+    inputSchema: {
+      type: 'object' as const,
+      properties: {
+        taskId: {
+          type: 'string',
+          description: 'The ID of the task from get_visora_queue',
+        },
+      },
+      required: ['taskId'],
+      additionalProperties: false,
+    },
+  },
+  {
+    name: 'mark_task_status',
+    description:
+      'Updates the status of a task in the Visora queue. Mark a task as "processing" when you ' +
+      'start working on it, and "done" when you successfully apply a patch, or "failed" if you cannot complete it.',
+    inputSchema: {
+      type: 'object' as const,
+      properties: {
+        taskId: {
+          type: 'string',
+          description: 'The ID of the task to update',
+        },
+        status: {
+          type: 'string',
+          description: 'The new status: "processing", "done", or "failed"',
+          enum: ['processing', 'done', 'failed']
+        }
+      },
+      required: ['taskId', 'status'],
       additionalProperties: false,
     },
   },
   {
     name: 'get_source',
     description:
-      'Reads and returns the source code of a file. If no filePath is provided, ' +
-      'returns the source of the currently selected component\'s file.',
+      'Reads and returns the source code of a file within the workspace. ' +
+      'Essential for reading the full source of the component before generating a patch.',
     inputSchema: {
       type: 'object' as const,
       properties: {
         filePath: {
           type: 'string',
-          description: 'Relative path to the source file (from project root). Optional — defaults to selected component\'s file.',
+          description: 'Relative path to the source file (from project root).',
         },
       },
-      additionalProperties: false,
-    },
-  },
-  {
-    name: 'get_context',
-    description:
-      'Returns a structured, AI-optimized JSON context for the selected component. ' +
-      'Includes component name, file, line, framework, Tailwind classes, props, ' +
-      'parent/child hierarchy, styles, and the user\'s instruction. Use this to ' +
-      'understand what the user wants to change before generating a patch.',
-    inputSchema: {
-      type: 'object' as const,
-      properties: {},
-      additionalProperties: false,
-    },
-  },
-  {
-    name: 'capture_component',
-    description:
-      'Returns a visual/DOM snapshot of the selected component including its ' +
-      'dimensions, outerHTML, and computed styles. (Screenshot capture coming in v2.)',
-    inputSchema: {
-      type: 'object' as const,
-      properties: {},
+      required: ['filePath'],
       additionalProperties: false,
     },
   },
   {
     name: 'apply_patch',
     description:
-      'Applies a code patch to a source file by replacing the original text with ' +
-      'the modified text. Use this after generating the edit for a visual-edit instruction.',
+      'Applies a code patch to a source file by replacing the exact original text with ' +
+      'the modified text. Use this to enact the user\'s UI changes.',
     inputSchema: {
       type: 'object' as const,
       properties: {
@@ -173,17 +176,17 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   let result: { content: string; isError: boolean };
 
   switch (name) {
-    case 'inspect_component':
-      result = inspectComponent();
+    case 'get_visora_queue':
+      result = getVisoraQueue();
+      break;
+    case 'get_task_context':
+      result = getTaskContext(args as { taskId: string });
+      break;
+    case 'mark_task_status':
+      result = markTaskStatus(args as { taskId: string; status: string });
       break;
     case 'get_source':
-      result = getSource(args as { filePath?: string });
-      break;
-    case 'get_context':
-      result = getContext();
-      break;
-    case 'capture_component':
-      result = captureComponent();
+      result = getSource(args as { filePath: string });
       break;
     case 'apply_patch':
       result = applyPatch(args as { filePath: string; original: string; modified: string });
