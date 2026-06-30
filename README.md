@@ -86,7 +86,7 @@ Navigate to `http://localhost:3000/`.
 
 ### 4. Start the Autonomous Daemon
 ```bash
-pnpm visora
+npx visora
 ```
 If this is your first time, Visora will launch an **interactive setup wizard** that asks you to choose your AI provider (Anthropic, OpenAI, Gemini, or Ollama) and securely saves it to `.env`.
 
@@ -104,7 +104,7 @@ This script will automatically:
 - Install the required Visora packages into your project.
 - Safely inject the Visora tracker into your `vite.config.ts` or Next.js `app/layout.tsx`.
 
-Once it's done, just keep the Visora Daemon running (`npm run visora` in the Visora folder) and start your project normally!
+Once it's done, just keep the Visora Daemon running (`npx visora` in the Visora folder) and start your project normally!
 
 ---
 
@@ -114,14 +114,14 @@ The Visora CLI is a professional-grade developer tool with full command support.
 
 | Command | Description |
 |---|---|
-| `pnpm visora` | Start the daemon (watches for UI instructions) |
-| `pnpm visora --config` | Re-configure your AI provider interactively |
-| `pnpm visora --status` | Show queue status across the entire workspace |
-| `pnpm visora --clear` | Remove all completed/failed tasks from queues |
-| `pnpm visora --purge` | Delete all Visora data, queues, screenshots, and history |
-| `pnpm visora --undo` | Undo the last successful AI patch |
-| `pnpm visora --help` | Display the full help page with usage & env vars |
-| `pnpm visora --version` | Print version number |
+| `npx visora` | Start the daemon (watches for UI instructions) |
+| `npx visora --config` | Re-configure your AI provider interactively |
+| `npx visora --status` | Show queue status across the entire workspace |
+| `npx visora --clear` | Remove all completed/failed tasks from queues |
+| `npx visora --purge` | Delete all Visora data, queues, screenshots, and history |
+| `npx visora --undo` | Undo the last successful AI patch |
+| `npx visora --help` | Display the full help page with usage & env vars |
+| `npx visora --version` | Print version number |
 
 ### Environment Variables
 
