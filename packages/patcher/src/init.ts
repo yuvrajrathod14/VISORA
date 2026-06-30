@@ -19,19 +19,25 @@ function detectPackageManager(targetDir: string) {
   return 'npm';
 }
 
-function installDependencies(targetDir: string, pm: string) {
-  const cmd = pm === 'npm' ? 'npm install -D' : `${pm} add -D`;
-  // We link to the specific visora packages using absolute paths for local testing,
-  // but for production this would just be @visora/vite-plugin @visora/patcher.
-  // Since we are simulating a live user, let's use the local workspace paths if available, 
-  // or fall back to npm names if published.
-  // For this local build, we assume Visora is being installed from the source repo:
-  const visoraRoot = path.resolve(__dirname, '../../..');
-  const vitePluginPath = path.join(visoraRoot, 'packages/vite-plugin');
-  const patcherPath = path.join(visoraRoot, 'packages/patcher');
+function detectFramework(targetDir: string) {
+  const pkgPath = path.join(targetDir, 'package.json');
+  if (fs.existsSync(pkgPath)) {
+    const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
+    if (pkg.dependencies?.next || pkg.devDependencies?.next) return 'next';
+  }
+  return 'vite'; // Fallback default
+}
 
+function installDependencies(targetDir: string, pm: string, framework: string) {
+  const cmd = pm === 'npm' ? 'npm install -D' : `${pm} add -D`;
+  const visoraRoot = path.resolve(__dirname, '../../..');
+  const pluginPath = framework === 'next' 
+    ? path.join(visoraRoot, 'packages/next-plugin')
+    : path.join(visoraRoot, 'packages/vite-plugin');
+  const patcherPath = path.join(visoraRoot, 'packages/patcher');
+  
   try {
-    execSync(`${cmd} "${vitePluginPath}" "${patcherPath}"`, { cwd: targetDir, stdio: 'pipe' });
+    execSync(`${cmd} "${pluginPath}" "${patcherPath}"`, { cwd: targetDir, stdio: 'pipe' });
   } catch (e: any) {
     throw new Error(e.stderr ? e.stderr.toString() : e.message);
   }
@@ -82,13 +88,66 @@ function patchViteConfig(targetDir: string): boolean {
   return true;
 }
 
+function patchNextLayout(targetDir: string): boolean {
+  const possibleNames = [
+    'app/layout.tsx', 'app/layout.jsx',
+    'src/app/layout.tsx', 'src/app/layout.jsx',
+    'pages/_app.tsx', 'pages/_app.jsx',
+    'src/pages/_app.tsx', 'src/pages/_app.jsx'
+  ];
+  
+  let layoutPath = '';
+  let content = '';
+
+  for (const name of possibleNames) {
+    const p = path.join(targetDir, name);
+    if (fs.existsSync(p)) {
+      layoutPath = p;
+      content = fs.readFileSync(p, 'utf-8');
+      break;
+    }
+  }
+
+  if (!layoutPath) throw new Error('Could not find app/layout.tsx or pages/_app.tsx in the project.');
+  if (content.includes('<VisoraTracker')) return true; // already patched
+
+  // Inject Import
+  const importStatement = `import { VisoraTracker } from '@visora/next-plugin';\n`;
+  const lastImportIndex = content.lastIndexOf('import ');
+  if (lastImportIndex !== -1) {
+    const endOfLastImport = content.indexOf('\n', lastImportIndex);
+    content = content.slice(0, endOfLastImport + 1) + importStatement + content.slice(endOfLastImport + 1);
+  } else {
+    content = importStatement + content;
+  }
+
+  // Inject Component inside <body> or main wrapper
+  const bodyTagRegex = /<body[^>]*>/i;
+  if (bodyTagRegex.test(content)) {
+    content = content.replace(bodyTagRegex, `$& \n        <VisoraTracker />`);
+  } else {
+    // If no body tag (like pages/_app), just inject it near the return statement's main wrapper
+    // This is a naive injection, but works for most standard _app.tsx
+    const returnRegex = /return\s*\(\s*<[^>]+>/;
+    if (returnRegex.test(content)) {
+      content = content.replace(returnRegex, `$& \n      <VisoraTracker />`);
+    } else {
+      throw new Error('Could not find a place to inject <VisoraTracker /> in your layout.');
+    }
+  }
+
+  fs.writeFileSync(layoutPath, content, 'utf-8');
+  return true;
+}
+
 export async function runInit(projectRoot: string) {
   console.log();
   const pm = detectPackageManager(projectRoot);
-
+  const framework = detectFramework(projectRoot);
+  
   const spinnerDeps = ora(`Installing Visora engines using ${pm}...`).start();
   try {
-    installDependencies(projectRoot, pm);
+    installDependencies(projectRoot, pm, framework);
     spinnerDeps.succeed(SUCCESS(`Visora engines installed successfully.`));
   } catch (e: any) {
     spinnerDeps.fail(FAIL(`Failed to install dependencies.`));
@@ -96,13 +155,17 @@ export async function runInit(projectRoot: string) {
     process.exit(1);
   }
 
-  const spinnerConfig = ora(`Patching vite.config...`).start();
+  const spinnerConfig = ora(`Patching ${framework === 'next' ? 'layout' : 'vite.config'}...`).start();
   try {
-    patchViteConfig(projectRoot);
-    spinnerConfig.succeed(SUCCESS(`vite.config patched successfully.`));
+    if (framework === 'next') {
+      patchNextLayout(projectRoot);
+    } else {
+      patchViteConfig(projectRoot);
+    }
+    spinnerConfig.succeed(SUCCESS(`Framework patched successfully.`));
   } catch (e: any) {
-    spinnerConfig.warn(chalk.yellow(`Could not auto-patch vite.config: ${e.message}`));
-    console.log(DIM('  Please add the visora() plugin manually.'));
+    spinnerConfig.warn(chalk.yellow(`Could not auto-patch: ${e.message}`));
+    console.log(DIM(`  Please add the Visora plugin manually.`));
   }
 
   console.log();
