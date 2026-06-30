@@ -1,75 +1,47 @@
-interface FeatureCardProps {
-  icon: string;
-  title: string;
-  description: string;
-}
-
-function FeatureCard({ icon, title, description }: FeatureCardProps) {
-  return (
-    <div className="feature-card">
-      <div className="feature-icon">{icon}</div>
-      <h3>{title}</h3>
-      <p>{description}</p>
-    </div>
-  );
-}
-
-const features: FeatureCardProps[] = [
-  {
-    icon: '🎯',
-    title: 'Visual Selection',
-    description:
-      'Hover and click any component in your running React app. Visora highlights it instantly with source file and line info.',
-  },
-  {
-    icon: '🧠',
-    title: 'Smart Context',
-    description:
-      'Automatically collects component source, props, styles, Tailwind classes, DOM hierarchy, and React Fiber data.',
-  },
-  {
-    icon: '💬',
-    title: 'Inline AI Chat',
-    description:
-      'Describe changes in natural language right beside the component. No more switching between browser and IDE.',
-  },
-  {
-    icon: '🔗',
-    title: 'MCP Integration',
-    description:
-      'Works with Cursor, VS Code, and Google Antigravity through the Model Context Protocol. Your AI gets perfect context.',
-  },
-  {
-    icon: '⚡',
-    title: 'Instant Apply',
-    description:
-      'AI generates the patch, you preview it, approve it, and Visora auto-applies it to your source code. Hot reload does the rest.',
-  },
-  {
-    icon: '🛡️',
-    title: 'Safe by Design',
-    description:
-      'Every change is previewed before applying. No blind code execution. You stay in control at all times.',
-  },
-];
-
 export default function Features() {
   return (
     <section className="features" id="features">
       <div className="features-header">
-        <h2>
-          Everything You Need to{' '}
-          <span className="gradient-text">Edit Visually</span>
-        </h2>
-        <p>
-          From component detection to AI-powered patches — Visora handles
-          the entire workflow.
-        </p>
+        <h2>Built for Agentic Coding</h2>
+        <p>Visora gives your AI coding assistant the visual awareness it needs to make flawless frontend changes.</p>
       </div>
+      
       <div className="features-grid">
-        {features.map((f) => (
-          <FeatureCard key={f.title} {...f} />
-        ))}
+        <div className="feature-card">
+          <div className="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>
+            </svg>
+          </div>
+          <h3>Visual Selection</h3>
+          <p>
+            Hover and click any component in your running React app. Visora highlights it instantly with source file and line info.
+          </p>
+        </div>
+        
+        <div className="feature-card">
+          <div className="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+            </svg>
+          </div>
+          <h3>Deep AST Context</h3>
+          <p>
+            Automatically extracts React Fiber properties, component state, parent/child hierarchy, and Tailwind classes.
+          </p>
+        </div>
+        
+        <div className="feature-card">
+          <div className="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="m13 2-2 2.5-4-1 3 5-5 3.5 6 1.5 1 5 4-4.5 5 1-1.5-6.5 4-3-6-1.5z"/>
+            </svg>
+          </div>
+          <h3>Multi-Action Queue</h3>
+          <p>
+            Queue up dozens of UI modifications rapidly. The background daemon processes them autonomously via AI.
+          </p>
+        </div>
       </div>
     </section>
   );

@@ -6,6 +6,9 @@ import Footer from './components/Footer';
 export default function App() {
   return (
     <div className="app">
+      <div className="ambient-background"></div>
+      <div className="ambient-glow"></div>
+      
       <Header />
       <Hero />
       <Features />
