@@ -59,11 +59,30 @@ Visora currently supports the following frameworks and build tools:
 - **Vue 3 (Vite)**
 - **Next.js (App Router & Pages Router)**
 
-## Quick Start the Demo App
+## 🎮 Quick Start the Demos
+
+Visora comes with 3 pre-configured demo applications so you can test it across different frameworks immediately.
+
+### 1. React (Vite) Demo - The Main Landing Page
 ```bash
-pnpm dev
+cd apps/demo
+npm run dev
 ```
-Navigate to `http://localhost:5174/` in your browser. The Visora overlay will be active.
+Navigate to `http://localhost:5174/` in your browser.
+
+### 2. Vue 3 (Vite) Demo
+```bash
+cd apps/demo-vue
+npm run dev
+```
+Navigate to `http://localhost:5175/` (or whichever port Vite assigns).
+
+### 3. Next.js (App Router) Demo
+```bash
+cd apps/demo-next
+npm run dev
+```
+Navigate to `http://localhost:3000/`.
 
 ### 4. Start the Autonomous Daemon
 ```bash
