@@ -399,9 +399,14 @@ async function processQueue(targetQueuePath: string) {
   }
 }
 
-// Run manual scan on startup and watch exactly those files (solves Windows glob issues)
-const initialQueues = findQueueFiles(projectRoot);
-initialQueues.forEach(qPath => {
+// Keep track of which files we are explicitly watching
+const watchedFiles = new Set<string>();
+
+function watchQueueFile(qPath: string) {
+  if (watchedFiles.has(qPath)) return;
+  watchedFiles.add(qPath);
+  
+  // Process it immediately in case there are pending tasks
   processQueue(qPath);
 
   // Watch this specific file reliably with aggressive polling for instant response
@@ -414,18 +419,26 @@ initialQueues.forEach(qPath => {
   }).on('change', () => {
     processQueue(qPath);
   });
-});
+}
 
-// Also watch for newly created .visora/queue.json files in case Vite is started after Visora
+// 1. Initial scan on startup
+const initialQueues = findQueueFiles(projectRoot);
+initialQueues.forEach(watchQueueFile);
+
+// 2. Fallback Poller: Windows glob watching often misses newly created deep directories. 
+// We manually scan every 2 seconds to ensure we never miss a newly created queue.json
+setInterval(() => {
+  const currentQueues = findQueueFiles(projectRoot);
+  currentQueues.forEach(watchQueueFile);
+}, 2000);
+
+// 3. Keep the glob watcher as an optimistic fast-path for standard environments
 chokidar.watch('**/.visora/queue.json', {
   cwd: projectRoot,
   persistent: true,
   ignoreInitial: true,
-  ignored: ['**/node_modules/**', '**/dist/**'],
-  usePolling: true,
-  interval: 500
+  ignored: ['**/node_modules/**', '**/dist/**']
 }).on('add', (relativePath) => {
   const fullPath = path.join(projectRoot, relativePath);
-  chokidar.watch(fullPath, { persistent: true, usePolling: true, interval: 100 }).on('change', () => processQueue(fullPath));
-  processQueue(fullPath);
+  watchQueueFile(fullPath);
 });
