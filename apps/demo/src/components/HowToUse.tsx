@@ -3,23 +3,49 @@ export default function HowToUse() {
     <section className="how-to-use" id="docs">
       <div className="how-to-header">
         <h2>Quick Start Guide</h2>
-        <p>Use Visora autonomously in the background, or plug it directly into your IDE via MCP.</p>
+        <p>Visora features a powerful dual-workflow architecture. Choose how you want to code.</p>
       </div>
       
       <div className="how-to-grid">
-        {/* IDE MCP Server Guide */}
+        {/* Workflow A */}
         <div className="how-to-card">
           <div className="how-to-step">
-            <span className="step-number">01</span>
-            <h3>Connect IDE (Cursor / Windsurf)</h3>
+            <span className="step-number">Workflow A</span>
+            <h3>The Autonomous Daemon</h3>
           </div>
           <p>
-            You can give your AI IDE visual awareness by adding the Visora MCP server to your settings.
+            Don't want to use an IDE chat? Visora comes with a built-in CLI agent that runs in the background and writes code for you automatically.
           </p>
           <div className="code-block">
             <pre>
               <code>
-<span className="code-comment"># Add a new MCP Server in Cursor/Windsurf:</span>
+<span className="code-comment"># 1. Create a .env file with your API key:</span>
+OPENAI_API_KEY=sk-proj-...
+<span className="code-comment"># (Also supports ANTHROPIC, GEMINI, or OLLAMA)</span>
+
+<span className="code-comment"># 2. Run the background daemon:</span>
+pnpm visora
+              </code>
+            </pre>
+          </div>
+          <p className="step-footer">
+            Alt+Click components in your browser, type an instruction, and watch the terminal. The daemon will instantly patch your source files!
+          </p>
+        </div>
+
+        {/* Workflow B */}
+        <div className="how-to-card">
+          <div className="how-to-step">
+            <span className="step-number">Workflow B</span>
+            <h3>The IDE MCP Server</h3>
+          </div>
+          <p>
+            If you prefer using <strong>Cursor</strong> or <strong>Windsurf</strong>, you can plug Visora directly into your IDE's brain.
+          </p>
+          <div className="code-block">
+            <pre>
+              <code>
+<span className="code-comment"># Add a new MCP Server in Cursor/Windsurf settings:</span>
 Name:    visora
 Type:    command
 Command: node
@@ -29,14 +55,14 @@ Env:     VISORA_PROJECT_ROOT=/absolute/path/to/VISORA
             </pre>
           </div>
           <p className="step-footer">
-            Queue instructions in the browser, then tell your IDE chat: <strong>"Process my Visora queue"</strong>.
+            Queue instructions in the browser, then tell your IDE chat: <strong>"Process my Visora queue"</strong>. The IDE will pull the AST context and write the code interactively.
           </p>
         </div>
 
         {/* Live Project Installation Guide */}
         <div className="how-to-card">
           <div className="how-to-step">
-            <span className="step-number">02</span>
+            <span className="step-number">Setup</span>
             <h3>Install in your Live Project</h3>
           </div>
           <p>
@@ -45,7 +71,7 @@ Env:     VISORA_PROJECT_ROOT=/absolute/path/to/VISORA
           <div className="code-block">
             <pre>
               <code>
-<span className="code-comment"># 1. Install the Vite Plugin</span>
+<span className="code-comment"># 1. Install the Vite Plugin into your live project</span>
 npm install -D /path/to/VISORA/packages/vite-plugin
 
 <span className="code-comment"># 2. Add to vite.config.ts</span>
@@ -57,7 +83,7 @@ export default defineConfig({`{`}
             </pre>
           </div>
           <p className="step-footer">
-            Start your dev server. The overlay will instantly appear in your live project!
+            Start your dev server (`npm run dev`). The overlay will instantly appear in your live project!
           </p>
         </div>
       </div>
