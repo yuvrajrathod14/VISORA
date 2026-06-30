@@ -19,15 +19,12 @@ export default function HowToUse() {
           <div className="code-block">
             <pre>
               <code>
-<span className="code-comment"># 1. Create a .env file with your API key:</span>
-OPENAI_API_KEY=sk-proj-...
-<span className="code-comment"># (Also supports ANTHROPIC, GEMINI, or OLLAMA)</span>
-
-<span className="code-comment"># 2. Run the background daemon:</span>
+<span className="code-comment"># First time? The wizard will ask for your API key:</span>
 pnpm visora
 
-<span className="code-comment"># Tip: Change AI provider later by running:</span>
-<span className="code-comment"># pnpm visora --config</span>
+<span className="code-comment"># Or set it manually in .env:</span>
+ANTHROPIC_API_KEY=sk-ant-...
+<span className="code-comment"># Also supports: OPENAI, GEMINI, or OLLAMA</span>
               </code>
             </pre>
           </div>
@@ -52,8 +49,8 @@ pnpm visora
 Name:    visora
 Type:    command
 Command: node
-Args:    /absolute/path/to/VISORA/packages/mcp-server/dist/index.js
-Env:     VISORA_PROJECT_ROOT=/absolute/path/to/VISORA
+Args:    /path/to/VISORA/packages/mcp-server/dist/index.js
+Env:     VISORA_PROJECT_ROOT=/path/to/VISORA
               </code>
             </pre>
           </div>
@@ -62,7 +59,7 @@ Env:     VISORA_PROJECT_ROOT=/absolute/path/to/VISORA
           </p>
         </div>
 
-        {/* Live Project Installation Guide */}
+        {/* Live Project Installation */}
         <div className="how-to-card">
           <div className="how-to-step">
             <span className="step-number">Setup</span>
@@ -74,7 +71,7 @@ Env:     VISORA_PROJECT_ROOT=/absolute/path/to/VISORA
           <div className="code-block">
             <pre>
               <code>
-<span className="code-comment"># 1. Install the Vite Plugin into your live project</span>
+<span className="code-comment"># 1. Install the Vite Plugin into your project</span>
 npm install -D /path/to/VISORA/packages/vite-plugin
 
 <span className="code-comment"># 2. Add to vite.config.ts</span>
@@ -86,7 +83,44 @@ export default defineConfig({`{`}
             </pre>
           </div>
           <p className="step-footer">
-            Start your dev server (`npm run dev`). The overlay will instantly appear in your live project!
+            Start your dev server. The overlay will instantly appear in your live project!
+          </p>
+        </div>
+
+        {/* CLI Reference */}
+        <div className="how-to-card">
+          <div className="how-to-step">
+            <span className="step-number">CLI</span>
+            <h3>Command Reference</h3>
+          </div>
+          <p>
+            The Visora CLI is a professional-grade tool with built-in help, status monitoring, and queue management.
+          </p>
+          <div className="code-block">
+            <pre>
+              <code>
+<span className="code-comment"># Start the autonomous daemon</span>
+pnpm visora
+
+<span className="code-comment"># Re-configure your AI provider</span>
+pnpm visora --config
+
+<span className="code-comment"># Show queue status across workspace</span>
+pnpm visora --status
+
+<span className="code-comment"># Clear completed/failed tasks</span>
+pnpm visora --clear
+
+<span className="code-comment"># Show full help page</span>
+pnpm visora --help
+
+<span className="code-comment"># Show version</span>
+pnpm visora --version
+              </code>
+            </pre>
+          </div>
+          <p className="step-footer">
+            Run <strong>pnpm visora --help</strong> at any time for the complete usage guide, supported env vars, and step-by-step instructions.
           </p>
         </div>
       </div>

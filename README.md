@@ -1,5 +1,4 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/yuvrajrathod14/VISORA/main/apps/demo/public/favicon.ico" alt="Visora Logo" width="120" height="120" style="border-radius: 20px; margin-bottom: 20px;" />
   
   # 🔮 VISORA
   
@@ -8,6 +7,7 @@
   [![Made by Visionatrix](https://img.shields.io/badge/Made%20by-Visionatrix-8B5CF6?style=for-the-badge)](https://visionatrix.com)
   [![Developer](https://img.shields.io/badge/Developer-Yuvraj%20Rathod-10B981?style=for-the-badge)](#)
   [![License](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
+  [![Version](https://img.shields.io/badge/Version-1.0.0-orange.svg?style=for-the-badge)](#)
 
   *Edit your UI by clicking, not describing.*
 </div>
@@ -26,17 +26,18 @@ A proud product of **[Visionatrix](#)**, developed by **Yuvraj Rathod**.
 
 ## ✨ Features
 
-- **🎯 Precision Visual Selection:** Hover and click any component in your running React app. Visora highlights it instantly and binds it to the exact source file and line info.
-- **🧬 Deep AST Context:** Automatically extracts React Fiber data, including component names, props, and hierarchical DOM structures.
-- **⚡ Multi-Action Queue:** Queue up dozens of UI modifications simultaneously without breaking your flow.
-- **🤖 Autonomous Patcher Daemon:** A standalone background CLI agent that connects to Anthropic, OpenAI, Gemini, or Ollama to automatically write and inject code patches.
-- **🔌 Native MCP Server:** Seamlessly plug Visora into Cursor or Windsurf to allow your IDE to read the visual context queue directly.
+| Feature | Description |
+|---|---|
+| **Precision Visual Selection** | Hover and click any component in your running React app. Visora highlights it instantly with source file and line info. |
+| **Deep AST Context** | Automatically extracts React Fiber data, component names, props, and hierarchical DOM structures. |
+| **Multi-Action Queue** | Queue up dozens of UI modifications simultaneously without breaking your flow. |
+| **Autonomous Patcher** | A standalone background CLI agent that connects to Anthropic, OpenAI, Gemini, or Ollama. |
+| **Native MCP Server** | Seamlessly plug Visora into Cursor or Windsurf for IDE-integrated AI editing. |
+| **Interactive Setup** | First-time users are guided through an interactive AI provider wizard in the terminal. |
 
 ---
 
-## 🚀 Getting Started (Local Development)
-
-Since Visora is currently structured as a modern monorepo workspace, you can easily try it out by running the built-in demo application.
+## 🚀 Getting Started
 
 ### 1. Clone & Install
 ```bash
@@ -54,36 +55,53 @@ pnpm --filter "@visora/*" build
 ```bash
 pnpm dev
 ```
-*Navigate to `http://localhost:5174/` in your browser. The Visora overlay will be active in the bottom left corner.*
+Navigate to `http://localhost:5174/` in your browser. The Visora overlay will be active.
 
-## 📦 How to Use Visora in Your OWN Live Project
-
-Since Visora is not yet published to the NPM registry, you can easily use it in any of your live projects right now by linking the local packages.
-
-### Step 1: Prepare the Visora Engine
-First, clone this repository somewhere on your computer and build the core packages:
+### 4. Start the Autonomous Daemon
 ```bash
-git clone https://github.com/yuvrajrathod14/VISORA.git
-cd VISORA
-pnpm install
-pnpm --filter "@visora/*" build
+pnpm visora
 ```
+If this is your first time, Visora will launch an **interactive setup wizard** that asks you to choose your AI provider (Anthropic, OpenAI, Gemini, or Ollama) and securely saves it to `.env`.
 
-### Step 2: Install Visora into your Live Project
-Navigate to your own React/Vite project and install the local Visora packages by pointing directly to the folder paths:
+---
+
+## ⌨️ CLI Reference
+
+The Visora CLI is a professional-grade developer tool with full command support.
+
+| Command | Description |
+|---|---|
+| `pnpm visora` | Start the daemon (watches for UI instructions) |
+| `pnpm visora --config` | Re-configure your AI provider interactively |
+| `pnpm visora --status` | Show queue status across the entire workspace |
+| `pnpm visora --clear` | Remove all completed/failed tasks from queues |
+| `pnpm visora --help` | Display the full help page with usage & env vars |
+| `pnpm visora --version` | Print version number |
+
+### Environment Variables
+
+| Variable | Description |
+|---|---|
+| `ANTHROPIC_API_KEY` | Anthropic Claude API key |
+| `OPENAI_API_KEY` | OpenAI API key |
+| `GEMINI_API_KEY` | Google Gemini API key |
+| `OLLAMA_URL` | Ollama server URL (e.g. `http://localhost:11434`) |
+| `OLLAMA_MODEL` | Ollama model name (e.g. `llama3`) |
+| `VISORA_PROJECT_ROOT` | Custom project root path |
+
+---
+
+## 📦 Use Visora in Your Own Project
+
+Since Visora is not yet published to NPM, you can link it locally into any Vite/React project.
+
+### Step 1: Install the Vite Plugin
 ```bash
 cd /path/to/your/live-project
-
-# Install the Vite Plugin as a dev dependency
 npm install -D /path/to/VISORA/packages/vite-plugin
-
-# (Optional) Install the Patcher Daemon if you want autonomous patching
-npm install -g /path/to/VISORA/packages/patcher
 ```
 
-### Step 3: Configure your Vite App
-In your live project, open your `vite.config.ts` (or `.js`) and add the Visora plugin:
-
+### Step 2: Configure `vite.config.ts`
 ```ts
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
@@ -94,51 +112,31 @@ export default defineConfig({
 });
 ```
 
-### Step 4: Start Coding!
+### Step 3: Start Coding!
 1. Start your live project (`npm run dev`).
-2. You will see the Visora overlay in your app. Alt+Click components to queue up instructions!
-3. To process the queue, either start the autonomous daemon inside your project folder (`visora`) or connect your IDE to the MCP server!
+2. The Visora overlay will appear. Alt+Click components to queue instructions!
+3. Run `pnpm visora` in a second terminal to process the queue.
 
 ---
 
 ## 🛠️ The Dual-Workflow Architecture
 
-Visora is designed for absolute flexibility, offering two professional workflows depending on your AI preferences.
+Visora offers two professional workflows depending on your preference.
 
 ### Workflow A: The Autonomous Daemon
-Visora comes with a built-in CLI agent that runs in the background and edits files autonomously.
-
-1. **Configure your AI Provider:**
-   Create a `.env` file in the root directory and add **one** of the following:
-   ```env
-   ANTHROPIC_API_KEY=sk-ant-...
-   # OR
-   OPENAI_API_KEY=sk-proj-...
-   # OR
-   GEMINI_API_KEY=AIzaSy...
-   # OR
-   OLLAMA_URL=http://localhost:11434
-   OLLAMA_MODEL=llama3
-   ```
-
-2. **Run the Daemon:**
-   ```bash
-   pnpm visora
-   ```
-3. **Queue Instructions:** Alt+Click components in your browser, type what you want to change, and watch the daemon instantly patch your source code.
+Run `pnpm visora` in a terminal. The daemon watches for instructions in the `.visora/queue.json` file and autonomously generates and applies code patches using your configured AI provider.
 
 ### Workflow B: The MCP Server (IDE Integration)
-If you prefer using **Cursor** or **Windsurf**, you can plug Visora directly into your IDE's brain.
+Connect your AI IDE (Cursor, Windsurf) to the Visora MCP server for interactive, IDE-integrated coding.
 
-1. **Configure MCP:**
-   - Go to MCP Settings in your IDE.
-   - Add a new `command` server named `visora`.
-   - Command: `node`
-   - Args: `/absolute/path/to/VISORA/packages/mcp-server/dist/index.js`
-   - Env: `VISORA_PROJECT_ROOT=/absolute/path/to/VISORA`
+**Configure MCP in your IDE:**
+- **Name:** `visora`
+- **Type:** `command`
+- **Command:** `node`
+- **Args:** `/absolute/path/to/VISORA/packages/mcp-server/dist/index.js`
+- **Env:** `VISORA_PROJECT_ROOT=/absolute/path/to/VISORA`
 
-2. **Use the Queue:**
-   Queue up instructions in the browser, then tell your IDE chat: *"Process my Visora queue"*. The IDE will autonomously pull tasks, fetch the enriched AST context, and write the code.
+Then simply tell your IDE chat: *"Process my Visora queue"*.
 
 ---
 
@@ -151,7 +149,7 @@ If you prefer using **Cursor** or **Windsurf**, you can plug Visora directly int
 - **Copyright:** © 2026 Visionatrix. All Rights Reserved.
 
 ### License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details. By using, distributing, or contributing to this project, you agree to the terms and conditions outlined in the license.
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
 
 ---
 <div align="center">
