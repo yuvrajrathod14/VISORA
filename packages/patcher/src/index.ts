@@ -92,9 +92,9 @@ function showHelp() {
   console.log(chalk.white.bold('  Usage'));
   console.log();
   console.log(`    ${ACCENT('visora')}                Start the daemon`);
-  console.log(`    ${ACCENT('visora')} ${DIM('--config')}       Re-configure your AI provider`);
   console.log(`    ${ACCENT('visora')} ${DIM('--status')}       Show queue status across workspace`);
   console.log(`    ${ACCENT('visora')} ${DIM('--clear')}        Clear completed/failed tasks`);
+  console.log(`    ${ACCENT('visora')} ${DIM('--purge')}        Delete all Visora queues and history (free space)`);
   console.log(`    ${ACCENT('visora')} ${DIM('--undo')}         Undo the last successful AI patch`);
   console.log(`    ${ACCENT('visora')} ${DIM('--help')}         Show this help message`);
   console.log(`    ${ACCENT('visora')} ${DIM('--version')}      Show version`);
@@ -212,6 +212,41 @@ function clearQueues() {
 }
 
 // ═══════════════════════════════════════════════════════════
+// COMMAND: --purge
+// ═══════════════════════════════════════════════════════════
+function purgeAll() {
+  printBanner();
+  
+  // Find all .visora directories
+  let totalDeleted = 0;
+  function deleteVisoraDirs(dir: string) {
+    if (!fs.existsSync(dir)) return;
+    const files = fs.readdirSync(dir);
+    for (const file of files) {
+      if (file === 'node_modules' || file === 'dist' || file.startsWith('.') && file !== '.visora') continue;
+      
+      const filePath = path.join(dir, file);
+      try {
+        if (fs.statSync(filePath).isDirectory()) {
+          if (file === '.visora') {
+            fs.rmSync(filePath, { recursive: true, force: true });
+            totalDeleted++;
+          } else {
+            deleteVisoraDirs(filePath);
+          }
+        }
+      } catch (e) {}
+    }
+  }
+
+  deleteVisoraDirs(projectRoot);
+
+  console.log(SUCCESS(`  ✔ Purged all Visora data (queues, screenshots, history) from ${totalDeleted} location(s).`));
+  console.log();
+  process.exit(0);
+}
+
+// ═══════════════════════════════════════════════════════════
 // COMMAND: --undo
 // ═══════════════════════════════════════════════════════════
 function undoLastPatch() {
@@ -260,6 +295,7 @@ if (args.includes('--help') || args.includes('-h')) showHelp();
 if (args.includes('--version') || args.includes('-v')) showVersion();
 if (args.includes('--status') || args.includes('-s')) showStatus();
 if (args.includes('--clear')) clearQueues();
+if (args.includes('--purge')) purgeAll();
 if (args.includes('--undo') || args.includes('-u')) undoLastPatch();
 
 const forceConfig = args.includes('--config') || args.includes('--setup');
