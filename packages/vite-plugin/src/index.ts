@@ -149,7 +149,7 @@ export default function visoraPlugin(options: VisoraPluginOptions = {}): Plugin 
         try {
           res.end(fs.readFileSync(overlayPath, 'utf-8'));
         } catch (e) {
-          console.error('\x1b[35m[visora]\x1b[0m Failed to serve overlay.js. Did you build the plugin?', e);
+          console.error('\x1b[2m  [visora]\x1b[0m \x1b[31mFailed to serve overlay.js. Did you build the plugin?\x1b[0m');
           res.statusCode = 404;
           res.end();
         }
@@ -203,15 +203,15 @@ export default function visoraPlugin(options: VisoraPluginOptions = {}): Plugin 
                 fs.writeFileSync(queuePath, JSON.stringify(queue, null, 2));
                 
                 console.log(
-                  `\x1b[35m[visora]\x1b[0m 📝 Added instruction to queue! (Task ID: \x1b[36m${id}\x1b[0m)`
+                  `\x1b[38;2;217;119;87m  ● Queued\x1b[0m  "${payload.instruction?.slice(0, 50) || 'instruction'}" \x1b[2m(${id})\x1b[0m`
                 );
               } else {
                 console.log(
-                  `\x1b[35m[visora]\x1b[0m selection updated → \x1b[36m${payload.sourceFile || 'unknown'}\x1b[0m`
+                  `\x1b[2m  [visora]\x1b[0m selection → \x1b[36m${payload.sourceFile || 'unknown'}\x1b[0m`
                 );
               }
             } catch (e) {
-              console.error('\x1b[35m[visora]\x1b[0m failed to parse context:', e);
+              console.error('\x1b[2m  [visora]\x1b[0m \x1b[31mfailed to parse context\x1b[0m');
             }
             res.statusCode = 204;
             res.end();
@@ -239,19 +239,21 @@ export default function visoraPlugin(options: VisoraPluginOptions = {}): Plugin 
       // Startup banner
       console.log('');
       console.log(
-        '\x1b[35m  ╔══════════════════════════════════════════╗\x1b[0m'
+        '\x1b[1m\x1b[38;2;217;119;87m  Visora\x1b[0m'
       );
       console.log(
-        '\x1b[35m  ║\x1b[0m  🔮 \x1b[1m\x1b[35mVisora\x1b[0m overlay active              \x1b[35m║\x1b[0m'
+        '\x1b[2m  Browser overlay active · Alt+Click to inspect\x1b[0m'
+      );
+      console.log('');
+      console.log(
+        `\x1b[2m  ─────────────────────────────────────────────────\x1b[0m`
+      );
+      console.log('');
+      console.log(
+        `\x1b[2m  Context\x1b[0m   ${contextPath}`
       );
       console.log(
-        '\x1b[35m  ║\x1b[0m  Alt+Click any element to inspect it   \x1b[35m║\x1b[0m'
-      );
-      console.log(
-        '\x1b[35m  ╚══════════════════════════════════════════╝\x1b[0m'
-      );
-      console.log(
-        `\x1b[35m  [visora]\x1b[0m context → \x1b[2m${contextPath}\x1b[0m`
+        `\x1b[2m  Queue\x1b[0m     ${queuePath}`
       );
       console.log('');
     },
