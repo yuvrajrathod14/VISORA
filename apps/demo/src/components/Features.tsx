@@ -7,7 +7,7 @@ export default function Features() {
       </div>
       
       <div className="features-grid">
-        <div className="feature-card">
+        <div className="feature-card tilt-card">
           <div className="feature-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>
@@ -19,7 +19,7 @@ export default function Features() {
           </p>
         </div>
         
-        <div className="feature-card">
+        <div className="feature-card tilt-card">
           <div className="feature-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
@@ -31,7 +31,7 @@ export default function Features() {
           </p>
         </div>
         
-        <div className="feature-card">
+        <div className="feature-card tilt-card">
           <div className="feature-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="m13 2-2 2.5-4-1 3 5-5 3.5 6 1.5 1 5 4-4.5 5 1-1.5-6.5 4-3-6-1.5z"/>

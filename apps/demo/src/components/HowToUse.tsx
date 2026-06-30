@@ -8,7 +8,7 @@ export default function HowToUse() {
       
       <div className="how-to-grid">
         {/* Workflow A */}
-        <div className="how-to-card">
+        <div className="how-to-card tilt-card">
           <div className="how-to-step">
             <span className="step-number">Workflow A</span>
             <h3>The Autonomous Daemon</h3>
