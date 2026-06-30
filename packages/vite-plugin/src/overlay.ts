@@ -138,9 +138,42 @@ import * as htmlToImage from 'html-to-image';
     }
   });
 
-  function findSourceEl(el: Element | null): HTMLElement | null {
+  function getReactFiberSource(el: HTMLElement): string | null {
+    // Find the property that starts with __reactFiber$
+    const fiberKey = Object.keys(el).find(key => key.startsWith('__reactFiber$'));
+    if (!fiberKey) return null;
+    
+    let fiber = (el as any)[fiberKey];
+    
+    // Traverse up the fiber tree until we find a component with source code
+    while (fiber) {
+      if (fiber._debugSource && fiber._debugSource.fileName) {
+        // Find the actual React component function name
+        let componentName = 'Component';
+        if (fiber.type && typeof fiber.type === 'function' && fiber.type.name) {
+          componentName = fiber.type.name;
+        } else if (fiber.elementType && typeof fiber.elementType === 'function' && fiber.elementType.name) {
+          componentName = fiber.elementType.name;
+        }
+        
+        return `${fiber._debugSource.fileName}:${fiber._debugSource.lineNumber}:${componentName}`;
+      }
+      fiber = fiber.return;
+    }
+    return null;
+  }
+
+  function findSourceEl(el: Element | null): { element: HTMLElement, src: string } | null {
     while (el && el !== document.body) {
-      if (el instanceof HTMLElement && el.hasAttribute('data-visora-src')) return el;
+      if (el instanceof HTMLElement) {
+        // 1. Try Vite AST Plugin Injection
+        const attr = el.getAttribute('data-visora-src');
+        if (attr) return { element: el, src: attr };
+        
+        // 2. Try Universal React Fiber Extraction (Next.js, CRA, Turbopack)
+        const fiberSrc = getReactFiberSource(el);
+        if (fiberSrc) return { element: el, src: fiberSrc };
+      }
       el = el.parentElement;
     }
     return null;
@@ -268,7 +301,8 @@ import * as htmlToImage from 'html-to-image';
     const styleSubset: Record<string, string> = {};
     stylesOfInterest.forEach(p => styleSubset[p] = computed.getPropertyValue(p));
 
-    const vsrc = el.getAttribute('data-visora-src') || '';
+    const sourceData = findSourceEl(el);
+    const vsrc = sourceData ? sourceData.src : '';
     const [sourceFile, sourceLine] = vsrc.split(':');
     const fiber = extractFiberData(el);
 
@@ -317,7 +351,8 @@ import * as htmlToImage from 'html-to-image';
     positionHighlight(el);
 
     const r = el.getBoundingClientRect();
-    const vsrc = el.getAttribute('data-visora-src') || '';
+    const sourceData = findSourceEl(el);
+    const vsrc = sourceData ? sourceData.src : '';
     const fiber = extractFiberData(el);
     const compDisplay = fiber?.componentName ? `<strong>&lt;${fiber.componentName}&gt;</strong>` : `<strong>${el.tagName.toLowerCase()}</strong>`;
 
@@ -417,17 +452,20 @@ import * as htmlToImage from 'html-to-image';
 
   document.addEventListener('mousemove', (e: MouseEvent) => {
     if (!isVisoraActive || panelEl) return;
-    const el = findSourceEl(e.target as Element);
-    if (el) { currentTarget = el; positionHighlight(el); }
+    const sourceData = findSourceEl(e.target as Element);
+    if (sourceData) { 
+        currentTarget = sourceData.element; 
+        positionHighlight(currentTarget); 
+    }
     else { highlightEl.style.display = 'none'; badgeEl.style.display = 'none'; currentTarget = null; }
   });
 
   document.addEventListener('click', (e: MouseEvent) => {
     if (!isVisoraActive || !e.altKey) return;
-    const el = findSourceEl(e.target as Element);
-    if (!el) return;
+    const elData = findSourceEl(e.target as Element);
+    if (!elData) return;
     e.preventDefault(); e.stopPropagation();
-    openPanel(el);
+    openPanel(elData.element);
   }, true);
 
   document.addEventListener('keydown', (e: KeyboardEvent) => {
