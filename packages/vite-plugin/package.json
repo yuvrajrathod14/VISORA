@@ -12,7 +12,7 @@
   },
   "scripts": {
     "build:overlay": "esbuild src/overlay.ts --bundle --outfile=dist/overlay.js --format=iife --minify",
-    "build": "pnpm build:overlay && tsc"
+    "build": "tsc && pnpm build:overlay"
   },
   "dependencies": {
     "@visora/shared": "workspace:*"

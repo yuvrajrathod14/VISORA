@@ -10,7 +10,17 @@
     "build": "pnpm -r build",
     "mcp": "node packages/mcp-server/dist/index.js"
   },
-  "keywords": ["visora", "ai", "visual-editing", "mcp", "react", "vite"],
+  "keywords": [
+    "visora",
+    "ai",
+    "visual-editing",
+    "mcp",
+    "react",
+    "vite"
+  ],
   "author": "Visionatrixx",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "jsdom": "^29.1.1"
+  }
 }

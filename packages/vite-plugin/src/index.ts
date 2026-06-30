@@ -124,7 +124,7 @@ export default function visoraPlugin(options: VisoraPluginOptions = {}): Plugin 
       return [
         {
           tag: 'script',
-          attrs: { type: 'module', src: '/@visora/overlay.js' },
+          attrs: { type: 'module', src: `/@visora/overlay.js?v=${Date.now()}` },
           injectTo: 'body' as const,
         },
       ];
@@ -138,6 +138,7 @@ export default function visoraPlugin(options: VisoraPluginOptions = {}): Plugin 
       server.middlewares.use('/@visora/overlay.js', (_req, res) => {
         const overlayPath = path.join(__dirname, 'overlay.js');
         res.setHeader('Content-Type', 'application/javascript');
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
         try {
           res.end(fs.readFileSync(overlayPath, 'utf-8'));
         } catch (e) {
@@ -155,13 +156,13 @@ export default function visoraPlugin(options: VisoraPluginOptions = {}): Plugin 
           req.on('end', () => {
             try {
               const payload = JSON.parse(body);
-              
+
               // Extract screenshot base64 if present, and save as file to keep context.json lightweight
               if (payload.screenshotBase64) {
-                 const base64Data = payload.screenshotBase64.replace(/^data:image\/png;base64,/, "");
-                 fs.writeFileSync(path.join(projectRoot, contextDirName, 'screenshot.png'), base64Data, 'base64');
-                 delete payload.screenshotBase64;
-                 payload.screenshotFile = '.visora/screenshot.png';
+                const base64Data = payload.screenshotBase64.replace(/^data:image\/png;base64,/, "");
+                fs.writeFileSync(path.join(projectRoot, contextDirName, 'screenshot.png'), base64Data, 'base64');
+                delete payload.screenshotBase64;
+                payload.screenshotFile = '.visora/screenshot.png';
               }
 
               const contextData: VisoraContextFile = {

@@ -11,68 +11,83 @@ import * as htmlToImage from 'html-to-image';
 
     .visora-highlight {
       position: fixed; pointer-events: none; z-index: 999997;
-      border: 2px solid rgba(139, 92, 246, 0.8);
-      background: rgba(139, 92, 246, 0.06);
-      border-radius: 6px;
-      transition: all 0.12s cubic-bezier(0.22, 1, 0.36, 1);
-      box-shadow: 0 0 0 1px rgba(139, 92, 246, 0.15), inset 0 0 20px rgba(139, 92, 246, 0.03);
+      border: 1px solid rgba(59, 130, 246, 0.9);
+      background: rgba(59, 130, 246, 0.05);
+      border-radius: 8px;
+      transition: all 0.15s cubic-bezier(0.22, 1, 0.36, 1);
+      box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.2), inset 0 0 24px rgba(59, 130, 246, 0.05);
     }
     .visora-highlight.visora-selected {
-      border-color: rgba(168, 85, 247, 0.95);
-      background: rgba(168, 85, 247, 0.08);
-      box-shadow: 0 0 20px rgba(168, 85, 247, 0.15), 0 0 0 1px rgba(168, 85, 247, 0.3);
+      border: 2px solid rgba(96, 165, 250, 1);
+      background: rgba(96, 165, 250, 0.08);
+      box-shadow: 0 0 24px rgba(59, 130, 246, 0.25), 0 0 0 1px rgba(96, 165, 250, 0.4);
     }
 
     .visora-badge {
       position: fixed; pointer-events: none; z-index: 999998;
-      background: linear-gradient(135deg, #7c3aed, #6366f1);
-      color: white; font: 500 11px/1.4 'Inter', system-ui, sans-serif;
-      padding: 3px 8px; border-radius: 5px;
-      transform: translateY(-100%); margin-top: -4px;
-      white-space: nowrap; box-shadow: 0 2px 8px rgba(99, 102, 241, 0.35);
-      letter-spacing: 0.01em; max-width: 400px; overflow: hidden; text-overflow: ellipsis;
+      background: rgba(15, 17, 21, 0.85);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #f8fafc; font: 500 11px/1.4 'Inter', system-ui, sans-serif;
+      padding: 4px 10px; border-radius: 6px;
+      transform: translateY(-100%); margin-top: -6px;
+      white-space: nowrap; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      letter-spacing: 0.02em; max-width: 400px; overflow: hidden; text-overflow: ellipsis;
     }
 
     .visora-panel {
-      position: fixed; z-index: 1000000; width: 360px;
-      background: rgba(15, 15, 25, 0.92);
-      backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%);
-      border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 14px;
-      padding: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 40px rgba(139,92,246,0.08);
-      font-family: 'Inter', system-ui, sans-serif; color: #e2e8f0;
-      animation: visora-panel-in 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+      position: fixed; z-index: 1000000; width: 380px;
+      background: rgba(15, 17, 21, 0.7);
+      backdrop-filter: blur(40px) saturate(180%); -webkit-backdrop-filter: blur(40px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.08); 
+      border-radius: 20px;
+      padding: 20px; 
+      box-shadow: 0 30px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05);
+      font-family: 'Inter', system-ui, sans-serif; color: #f1f5f9;
+      animation: visora-panel-in 0.3s cubic-bezier(0.22, 1, 0.36, 1);
     }
     @keyframes visora-panel-in {
-      from { opacity: 0; transform: translateY(8px) scale(0.97); }
+      from { opacity: 0; transform: translateY(12px) scale(0.96); }
       to { opacity: 1; transform: translateY(0) scale(1); }
     }
-    .visora-panel-header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
-    .visora-panel-logo { width: 22px; height: 22px; background: linear-gradient(135deg, #8b5cf6, #6366f1); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: white; flex-shrink: 0; }
-    .visora-panel-title { font-size: 13px; font-weight: 600; color: #c4b5fd; letter-spacing: 0.02em; }
-    .visora-panel-close { margin-left: auto; background: none; border: none; color: #64748b; cursor: pointer; font-size: 16px; padding: 2px 6px; border-radius: 4px; transition: all 0.15s; }
-    .visora-panel-close:hover { background: rgba(255,255,255,0.08); color: #e2e8f0; }
+    
+    .visora-loading-bar { position: absolute; top: 0; left: 0; height: 3px; width: 100%; background: rgba(255,255,255,0.05); overflow: hidden; border-radius: 20px 20px 0 0; display: none; }
+    .visora-loading-bar::after { content: ''; position: absolute; top: 0; left: 0; height: 100%; width: 40%; background: linear-gradient(90deg, transparent, #3b82f6, #0ea5e9, transparent); animation: visora-loading 1.5s infinite ease-in-out; }
+    @keyframes visora-loading { 0% { transform: translateX(-100%); } 100% { transform: translateX(300%); } }
+    .visora-panel-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+    .visora-panel-logo { width: 24px; height: 24px; background: linear-gradient(135deg, #3b82f6, #0ea5e9); border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: white; flex-shrink: 0; box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4); }
+    .visora-panel-title { font-size: 14px; font-weight: 600; color: #f8fafc; letter-spacing: 0.01em; }
+    .visora-panel-close { margin-left: auto; background: none; border: none; color: #64748b; cursor: pointer; font-size: 16px; padding: 4px; border-radius: 6px; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
+    .visora-panel-close:hover { background: rgba(255,255,255,0.1); color: #f1f5f9; }
 
-    .visora-panel-info { background: rgba(139,92,246,0.08); border: 1px solid rgba(139,92,246,0.15); border-radius: 8px; padding: 8px 10px; margin-bottom: 12px; font-size: 11px; color: #a5b4fc; line-height: 1.5; word-break: break-all; }
-    .visora-panel-info strong { color: #c4b5fd; }
-    .visora-panel textarea { width: 100%; box-sizing: border-box; min-height: 80px; resize: vertical; background: rgba(15,23,42,0.6); color: #e2e8f0; border: 1px solid rgba(139,92,246,0.2); border-radius: 10px; padding: 10px 12px; font: 400 13px/1.5 'Inter', system-ui, sans-serif; outline: none; }
-    .visora-panel textarea:focus { border-color: rgba(139,92,246,0.5); box-shadow: 0 0 0 3px rgba(139,92,246,0.1); }
-    .visora-panel-actions { display: flex; gap: 8px; margin-top: 10px; }
+    .visora-panel-info { background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.04); border-radius: 12px; padding: 12px; margin-bottom: 16px; font-size: 12px; color: #94a3b8; line-height: 1.6; word-break: break-all; }
+    .visora-panel-info strong { color: #e2e8f0; font-weight: 600; }
+    .visora-panel textarea { width: 100%; box-sizing: border-box; min-height: 90px; resize: none; background: rgba(0,0,0,0.3); color: #f8fafc; border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 14px; font: 400 13px/1.5 'Inter', system-ui, sans-serif; outline: none; transition: all 0.2s; }
+    .visora-panel textarea:focus { border-color: rgba(59, 130, 246, 0.6); background: rgba(0,0,0,0.5); box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15); }
+    .visora-panel textarea::placeholder { color: #475569; }
+    .visora-panel-actions { display: flex; gap: 10px; margin-top: 16px; }
 
-    .visora-btn { cursor: pointer; border: none; border-radius: 8px; padding: 8px 14px; font: 500 12px/1 'Inter', system-ui, sans-serif; transition: all 0.15s; }
-    .visora-btn-primary { background: linear-gradient(135deg, #7c3aed, #6366f1); color: white; flex: 1; box-shadow: 0 2px 10px rgba(99,102,241,0.3); }
-    .visora-btn-primary:hover { box-shadow: 0 4px 16px rgba(99,102,241,0.45); transform: translateY(-1px); }
-    .visora-btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-    .visora-btn-secondary { background: rgba(255,255,255,0.06); color: #94a3b8; border: 1px solid rgba(255,255,255,0.08); }
+    .visora-btn { cursor: pointer; border: none; border-radius: 10px; padding: 10px 16px; font: 500 13px/1 'Inter', system-ui, sans-serif; transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1); letter-spacing: 0.01em; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .visora-btn-primary { background: linear-gradient(135deg, #2563eb, #0ea5e9); color: white; flex: 1; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); border: 1px solid rgba(255,255,255,0.1); }
+    .visora-btn-primary:hover { box-shadow: 0 6px 20px rgba(37, 99, 235, 0.45); transform: translateY(-1px); filter: brightness(1.1); }
+    .visora-btn-primary:active { transform: translateY(0); filter: brightness(1); }
+    .visora-btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; filter: none; }
+    .visora-btn-secondary { background: rgba(255,255,255,0.05); color: #cbd5e1; border: 1px solid rgba(255,255,255,0.08); }
+    .visora-btn-secondary:hover { background: rgba(255,255,255,0.1); color: #f8fafc; }
 
-    .visora-toast { position: fixed; bottom: 20px; right: 20px; z-index: 1000001; padding: 10px 16px; border-radius: 10px; font: 500 13px/1.4 'Inter', system-ui, sans-serif; box-shadow: 0 8px 30px rgba(0,0,0,0.3); animation: visora-toast-in 0.3s cubic-bezier(0.22, 1, 0.36, 1); display: flex; align-items: center; gap: 8px; backdrop-filter: blur(12px); color: white; }
-    .visora-toast-success { background: rgba(16,185,129,0.9); }
-    .visora-toast-error { background: rgba(239,68,68,0.9); }
-    @keyframes visora-toast-in { from { opacity: 0; transform: translateY(12px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    .visora-toast { position: fixed; bottom: 24px; right: 24px; z-index: 1000001; padding: 12px 20px; border-radius: 12px; font: 500 13px/1.4 'Inter', system-ui, sans-serif; box-shadow: 0 10px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1); animation: visora-toast-in 0.4s cubic-bezier(0.22, 1, 0.36, 1); display: flex; align-items: center; gap: 10px; backdrop-filter: blur(16px); color: white; border: 1px solid rgba(255,255,255,0.08); }
+    .visora-toast-success { background: rgba(16, 185, 129, 0.8); }
+    .visora-toast-error { background: rgba(239, 68, 68, 0.8); }
+    @keyframes visora-toast-in { from { opacity: 0; transform: translateY(16px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
 
-    .visora-spinner { width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.2); border-top-color: white; border-radius: 50%; animation: visora-spin 0.6s linear infinite; display: inline-block; }
+    .visora-spinner { width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.25); border-top-color: white; border-radius: 50%; animation: visora-spin 0.6s linear infinite; display: inline-block; }
     @keyframes visora-spin { to { transform: rotate(360deg); } }
 
-    .visora-watermark { position: fixed; bottom: 12px; left: 12px; z-index: 999990; background: rgba(15,15,25,0.7); backdrop-filter: blur(8px); color: #7c3aed; font: 600 10px/1 'Inter', system-ui, sans-serif; padding: 5px 10px; border-radius: 6px; border: 1px solid rgba(139,92,246,0.15); letter-spacing: 0.05em; text-transform: uppercase; pointer-events: none; opacity: 0.7; }
+    .visora-toggle { position: fixed; bottom: 20px; right: 20px; z-index: 999990; background: rgba(15, 17, 21, 0.85); backdrop-filter: blur(12px); color: #64748b; font: 600 12px/1 'Inter', system-ui, sans-serif; padding: 10px 16px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 8px; }
+    .visora-toggle:hover { background: rgba(25, 27, 33, 0.95); color: #e2e8f0; border-color: rgba(255,255,255,0.2); }
+    .visora-toggle.active { background: linear-gradient(135deg, #2563eb, #0ea5e9); color: white; border-color: rgba(255,255,255,0.15); box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4); }
+    .visora-toggle-dot { width: 8px; height: 8px; border-radius: 50%; background: #64748b; transition: all 0.2s; }
+    .visora-toggle.active .visora-toggle-dot { background: #fff; box-shadow: 0 0 8px #fff; }
   `;
 
   const styleEl = document.createElement('style');
@@ -88,17 +103,31 @@ import * as htmlToImage from 'html-to-image';
   badgeEl.className = 'visora-badge';
   badgeEl.style.display = 'none';
 
-  const watermarkEl = document.createElement('div');
-  watermarkEl.className = 'visora-watermark';
-  watermarkEl.textContent = '🔮 Visora';
+  const toggleEl = document.createElement('button');
+  toggleEl.className = 'visora-toggle';
+  toggleEl.innerHTML = '<div class="visora-toggle-dot"></div> Visora Inspector';
 
   document.body.appendChild(highlightEl);
   document.body.appendChild(badgeEl);
-  document.body.appendChild(watermarkEl);
+  document.body.appendChild(toggleEl);
 
+  let isVisoraActive = false;
   let currentTarget: HTMLElement | null = null;
   let panelEl: HTMLElement | null = null;
   let isSending = false;
+
+  toggleEl.addEventListener('click', () => {
+    isVisoraActive = !isVisoraActive;
+    if (isVisoraActive) {
+      toggleEl.classList.add('active');
+    } else {
+      toggleEl.classList.remove('active');
+      closePanel();
+      highlightEl.style.display = 'none';
+      badgeEl.style.display = 'none';
+      currentTarget = null;
+    }
+  });
 
   function findSourceEl(el: Element | null): HTMLElement | null {
     while (el && el !== document.body) {
@@ -118,7 +147,7 @@ import * as htmlToImage from 'html-to-image';
 
     const vsrc = el.getAttribute('data-visora-src') || '';
     const fiberData = extractFiberData(el);
-    const displayName = fiberData?.componentName ? `<\${fiberData.componentName}> — \${vsrc}` : vsrc;
+    const displayName = fiberData?.componentName ? `<${fiberData.componentName}> — ${vsrc}` : vsrc;
 
     badgeEl.style.display = 'block';
     badgeEl.style.left = r.left + 'px';
@@ -159,7 +188,7 @@ import * as htmlToImage from 'html-to-image';
                 else if (typeof v === 'object' && v !== null) componentProps[k] = '[Object]';
                 else componentProps[k] = v;
               }
-            } catch {}
+            } catch { }
           }
           break;
         }
@@ -175,14 +204,14 @@ import * as htmlToImage from 'html-to-image';
         let state = fiber.return.memoizedState;
         let i = 0;
         while (state && i < 20) {
-          if (state.queue) hooks.push(`useState_\${i}`);
-          else if (state.deps !== undefined) hooks.push(`useEffect_\${i}`);
-          else hooks.push(`hook_\${i}`);
+          if (state.queue) hooks.push(`useState_${i}`);
+          else if (state.deps !== undefined) hooks.push(`useEffect_${i}`);
+          else hooks.push(`hook_${i}`);
           state = state.next;
           i++;
         }
       }
-    } catch {}
+    } catch { }
 
     return { componentName, props: componentProps, stateKeys, hooks };
   }
@@ -238,7 +267,7 @@ import * as htmlToImage from 'html-to-image';
     try {
       const r = el.getBoundingClientRect();
       boundingRect = { x: r.x, y: r.y, width: r.width, height: r.height };
-    } catch {}
+    } catch { }
 
     return {
       instruction,
@@ -262,8 +291,8 @@ import * as htmlToImage from 'html-to-image';
 
   function showToast(msg: string, type: 'success' | 'error' = 'success'): void {
     const t = document.createElement('div');
-    t.className = `visora-toast visora-toast-\${type}`;
-    t.innerHTML = `\${type === 'success' ? '✓' : '✗'} \${msg}`;
+    t.className = `visora-toast visora-toast-${type}`;
+    t.innerHTML = `${type === 'success' ? '✓' : '✗'} ${msg}`;
     document.body.appendChild(t);
     setTimeout(() => {
       t.style.opacity = '0';
@@ -281,7 +310,7 @@ import * as htmlToImage from 'html-to-image';
     const r = el.getBoundingClientRect();
     const vsrc = el.getAttribute('data-visora-src') || '';
     const fiber = extractFiberData(el);
-    const compDisplay = fiber?.componentName ? `<strong>&lt;\${fiber.componentName}&gt;</strong>` : `<strong>\${el.tagName.toLowerCase()}</strong>`;
+    const compDisplay = fiber?.componentName ? `<strong>&lt;${fiber.componentName}&gt;</strong>` : `<strong>${el.tagName.toLowerCase()}</strong>`;
 
     panelEl = document.createElement('div');
     panelEl.className = 'visora-panel';
@@ -295,15 +324,16 @@ import * as htmlToImage from 'html-to-image';
     panelEl.style.left = panelLeft + 'px';
     panelEl.style.top = panelTop + 'px';
 
-    const propsInfo = fiber?.props && Object.keys(fiber.props).length > 0 ? `<br>Props: \${Object.keys(fiber.props).join(', ')}` : '';
+    const propsInfo = fiber?.props && Object.keys(fiber.props).length > 0 ? `<br>Props: ${Object.keys(fiber.props).join(', ')}` : '';
 
     panelEl.innerHTML = `
+      <div class="visora-loading-bar" id="visora-loading-bar"></div>
       <div class="visora-panel-header">
         <div class="visora-panel-logo">V</div>
         <span class="visora-panel-title">Visora</span>
         <button class="visora-panel-close" data-action="close" title="Close (Esc)">✕</button>
       </div>
-      <div class="visora-panel-info">\${compDisplay}<br>📁 \${vsrc}\${propsInfo}</div>
+      <div class="visora-panel-info">${compDisplay}<br>📁 ${vsrc}${propsInfo}</div>
       <textarea id="visora-prompt" placeholder="Describe the change...\ne.g. Make this button rounded with glassmorphism"></textarea>
       <div class="visora-panel-actions">
         <button class="visora-btn visora-btn-secondary" data-action="cancel">Cancel</button>
@@ -332,7 +362,9 @@ import * as htmlToImage from 'html-to-image';
 
         isSending = true;
         const sendBtn = panelEl?.querySelector('#visora-send-btn') as HTMLButtonElement;
+        const loadingBar = panelEl?.querySelector('#visora-loading-bar') as HTMLElement;
         if (sendBtn) { sendBtn.disabled = true; sendBtn.innerHTML = '<span class="visora-spinner"></span> Sending...'; }
+        if (loadingBar) { loadingBar.style.display = 'block'; }
 
         try {
           // Temporarily hide highlight to get a clean screenshot
@@ -356,7 +388,7 @@ import * as htmlToImage from 'html-to-image';
           });
 
           if (res.ok || res.status === 204) showToast('Context sent! Ask your AI agent to apply it.', 'success');
-          else showToast(`Server error (\${res.status})`, 'error');
+          else showToast(`Server error (${res.status})`, 'error');
         } catch (err) {
           console.error(err);
           showToast('Failed to reach dev server', 'error');
@@ -375,14 +407,14 @@ import * as htmlToImage from 'html-to-image';
   }
 
   document.addEventListener('mousemove', (e: MouseEvent) => {
-    if (panelEl) return;
+    if (!isVisoraActive || panelEl) return;
     const el = findSourceEl(e.target as Element);
     if (el) { currentTarget = el; positionHighlight(el); }
     else { highlightEl.style.display = 'none'; badgeEl.style.display = 'none'; currentTarget = null; }
   });
 
   document.addEventListener('click', (e: MouseEvent) => {
-    if (!e.altKey) return;
+    if (!isVisoraActive || !e.altKey) return;
     const el = findSourceEl(e.target as Element);
     if (!el) return;
     e.preventDefault(); e.stopPropagation();
@@ -393,6 +425,22 @@ import * as htmlToImage from 'html-to-image';
     if (e.key === 'Escape') closePanel();
   });
 
-  console.log('%c🔮 Visora%c overlay loaded — Alt+Click any element to edit it with AI', 'color: #8b5cf6; font-weight: bold; font-size: 13px;', 'color: #94a3b8; font-size: 12px;');
-})();
+  window.addEventListener('scroll', () => {
+    if (!isVisoraActive) return;
+    if (currentTarget) {
+      positionHighlight(currentTarget);
+      if (panelEl) {
+        const r = currentTarget.getBoundingClientRect();
+        let panelLeft = r.right + 12;
+        let panelTop = r.top;
+        if (panelLeft + 370 > window.innerWidth) panelLeft = r.left - 372;
+        if (panelLeft < 10) { panelLeft = Math.min(r.left, window.innerWidth - 380); panelTop = r.bottom + 12; }
+        panelTop = Math.max(10, Math.min(panelTop, window.innerHeight - 280));
+        panelEl.style.left = panelLeft + 'px';
+        panelEl.style.top = panelTop + 'px';
+      }
+    }
+  }, true); // Use capture phase to catch scrolls on any overflow container
 
+  console.log('%c🔮 Visora%c overlay loaded — Alt+Click any element to edit it with AI', 'color: #3b82f6; font-weight: bold; font-size: 13px;', 'color: #94a3b8; font-size: 12px;');
+})();
