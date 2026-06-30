@@ -26,7 +26,11 @@ function installDependencies(targetDir: string, pm: string) {
   const vitePluginPath = path.join(visoraRoot, 'packages/vite-plugin');
   const patcherPath = path.join(visoraRoot, 'packages/patcher');
   
-  execSync(`${cmd} "${vitePluginPath}" "${patcherPath}"`, { cwd: targetDir, stdio: 'ignore' });
+  try {
+    execSync(`${cmd} "${vitePluginPath}" "${patcherPath}"`, { cwd: targetDir, stdio: 'pipe' });
+  } catch (e: any) {
+    throw new Error(e.stderr ? e.stderr.toString() : e.message);
+  }
 }
 
 function patchViteConfig(targetDir: string): boolean {
@@ -83,8 +87,9 @@ export async function runInit(projectRoot: string) {
   try {
     installDependencies(projectRoot, pm);
     spinnerDeps.succeed(SUCCESS(`Visora engines installed successfully.`));
-  } catch (e) {
+  } catch (e: any) {
     spinnerDeps.fail(FAIL(`Failed to install dependencies.`));
+    console.error(chalk.red(e.message));
     process.exit(1);
   }
 
