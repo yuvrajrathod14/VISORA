@@ -235,12 +235,8 @@ console.log();
 console.log(DIVIDER);
 console.log();
 
-const idleSpinner = ora({
-  text: DIM('Watching for instructions…'),
-  color: 'gray',
-  spinner: 'dots',
-  indent: 2
-}).start();
+let isIdle = true;
+console.log(DIM('  👀 Watching for instructions…\n'));
 
 // Keep track of which queues are currently being processed
 const processingQueues = new Set<string>();
@@ -263,9 +259,9 @@ async function processQueue(targetQueuePath: string) {
   
   processingQueues.add(targetQueuePath);
   
-  // Stop idle spinner
-  idleSpinner.stop();
-  console.log();
+  if (isIdle) {
+    isIdle = false;
+  }
 
   for (const task of pendingTasks) {
     const target = task.selection.componentName || task.selection.tagName || 'element';
@@ -317,7 +313,10 @@ async function processQueue(targetQueuePath: string) {
   }
   
   processingQueues.delete(targetQueuePath);
-  idleSpinner.start();
+  if (processingQueues.size === 0) {
+    isIdle = true;
+    console.log(DIM('  👀 Watching for instructions…\n'));
+  }
 }
 
 // Run manual scan on startup and watch exactly those files (solves Windows glob issues)
