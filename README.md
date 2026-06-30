@@ -95,29 +95,19 @@ The Visora CLI is a professional-grade developer tool with full command support.
 
 ## 📦 Use Visora in Your Own Project
 
-Since Visora is not yet published to NPM, you can link it locally into any Vite/React project.
+Since Visora is not yet published to NPM, you can use our 1-click installer to automatically link it into any Vite/React project.
 
-### Step 1: Install the Vite Plugin
+### Automated Installation
+Simply open a terminal in your project folder and run:
 ```bash
-cd /path/to/your/live-project
-npm install -D /path/to/VISORA/packages/vite-plugin
+npx visora init
 ```
+*Visora will auto-detect your environment, install the dependencies, and autonomously inject the plugin into your `vite.config.ts`.*
 
-### Step 2: Configure `vite.config.ts`
-```ts
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-import visora from '@visora/vite-plugin';
-
-export default defineConfig({
-  plugins: [react(), visora()]
-});
-```
-
-### Step 3: Start Coding!
+### Step 2: Start Coding!
 1. Start your live project (`npm run dev`).
 2. The Visora overlay will appear. Alt+Click components to queue instructions!
-3. Run `pnpm visora` in a second terminal to process the queue.
+3. Run `npx visora` in a second terminal to process the queue.
 
 ---
 

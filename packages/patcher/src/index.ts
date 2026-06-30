@@ -21,6 +21,7 @@ import ora from 'ora';
 import { generatePatch } from './ai';
 import { applyPatch } from './diff';
 import { checkAndRunOnboarding } from './onboarding';
+import { runInit } from './init';
 
 // ═══════════════════════════════════════════════════════════
 // CONSTANTS & BRANDING
@@ -92,6 +93,7 @@ function showHelp() {
   console.log(chalk.white.bold('  Usage'));
   console.log();
   console.log(`    ${ACCENT('visora')}                Start the daemon`);
+  console.log(`    ${ACCENT('visora')} ${DIM('init')}         Auto-install Visora into the current project`);
   console.log(`    ${ACCENT('visora')} ${DIM('--status')}       Show queue status across workspace`);
   console.log(`    ${ACCENT('visora')} ${DIM('--clear')}        Clear completed/failed tasks`);
   console.log(`    ${ACCENT('visora')} ${DIM('--purge')}        Delete all Visora queues and history (free space)`);
@@ -293,6 +295,7 @@ function undoLastPatch() {
 // ═══════════════════════════════════════════════════════════
 if (args.includes('--help') || args.includes('-h')) showHelp();
 if (args.includes('--version') || args.includes('-v')) showVersion();
+if (args.includes('init') || args.includes('--init')) runInit(projectRoot);
 if (args.includes('--status') || args.includes('-s')) showStatus();
 if (args.includes('--clear')) clearQueues();
 if (args.includes('--purge')) purgeAll();
