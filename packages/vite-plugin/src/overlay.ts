@@ -363,7 +363,12 @@ import * as htmlToImage from 'html-to-image';
   }
 
   function detectFramework() {
+    // Next.js Pages Router
     if ((window as any).__NEXT_DATA__) return 'nextjs';
+    // Next.js App Router (RSC) — check for __next div or __next_f script chunks
+    if (document.getElementById('__next')) return 'nextjs';
+    if (document.querySelector('script[src*="/_next/"]')) return 'nextjs';
+    if (document.querySelector('script#__NEXT_DATA__')) return 'nextjs';
     const rootEl = document.getElementById('root') || document.getElementById('__next');
     if (rootEl) {
       const keys = Object.keys(rootEl);
