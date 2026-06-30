@@ -278,30 +278,33 @@ async function processQueue(targetQueuePath: string) {
     fs.writeFileSync(targetQueuePath, JSON.stringify(queue, null, 2));
 
     const spinner = ora({
-      text: DIM('Generating code patch…'),
+      text: DIM(`Asking ${provider} to generate patch…`),
       color: 'yellow',
       spinner: 'dots',
       indent: 4
     }).start();
 
+    const startTime = Date.now();
+
     try {
       const appRoot = path.dirname(path.dirname(targetQueuePath));
       
       const patch = await generatePatch(task, appRoot);
+      const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
       
       if (patch && patch.modifiedContent) {
          spinner.text = DIM(`Writing to ${patch.filePath}…`);
          
          const success = applyPatch(appRoot, patch.filePath, patch.originalContent, patch.modifiedContent);
          if (success) {
-           spinner.succeed(SUCCESS(`Patched ${patch.filePath}`));
+           spinner.succeed(SUCCESS(`Patched ${patch.filePath}`) + DIM(` (${elapsed}s)`));
            task.status = 'done';
          } else {
-           spinner.fail(FAIL(`Patch conflict in ${patch.filePath}`));
+           spinner.fail(FAIL(`Patch conflict in ${patch.filePath}`) + DIM(` (${elapsed}s)`));
            task.status = 'failed';
          }
       } else {
-         spinner.fail(FAIL(`No valid patch from AI`));
+         spinner.fail(FAIL(`No valid patch from AI`) + DIM(` (${elapsed}s)`));
          task.status = 'failed';
       }
     } catch (e: any) {

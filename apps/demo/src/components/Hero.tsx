@@ -5,7 +5,7 @@ export default function Hero() {
         <span className="highlight">New</span> Introducing Visora v1.0
       </div>
       
-      <h1>
+      <h1 className="animate__animated animate__bounceInDown">
         Edit UI by <span className="gradient-text">Clicking</span>,<br />
         Not Describing
       </h1>
