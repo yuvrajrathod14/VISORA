@@ -75,6 +75,8 @@ The Visora CLI is a professional-grade developer tool with full command support.
 | `pnpm visora --config` | Re-configure your AI provider interactively |
 | `pnpm visora --status` | Show queue status across the entire workspace |
 | `pnpm visora --clear` | Remove all completed/failed tasks from queues |
+| `pnpm visora --purge` | Delete all Visora data, queues, screenshots, and history |
+| `pnpm visora --undo` | Undo the last successful AI patch |
 | `pnpm visora --help` | Display the full help page with usage & env vars |
 | `pnpm visora --version` | Print version number |
 
