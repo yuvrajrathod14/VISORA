@@ -1,6 +1,6 @@
 {
   "name": "visora-cli",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "description": "Visora autonomous AI patcher daemon",
   "main": "dist/index.js",
   "type": "module",

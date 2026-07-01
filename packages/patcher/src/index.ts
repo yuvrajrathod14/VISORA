@@ -183,6 +183,7 @@ function findQueueFiles(dir: string, fileList: string[] = []) {
 }
 
 function getActiveProvider(): string {
+  if (process.env.PROVIDER_DISPLAY_NAME) return process.env.PROVIDER_DISPLAY_NAME;
   if (process.env.ANTHROPIC_API_KEY) return 'Anthropic (Claude)';
   if (process.env.OPENAI_API_KEY) return 'OpenAI (GPT-4o)';
   if (process.env.GEMINI_API_KEY) return 'Google Gemini';

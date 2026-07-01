@@ -93,25 +93,28 @@ Reply ONLY with a JSON ARRAY of objects in this exact format (no markdown, no re
   
   if (process.env.OPENAI_API_KEY) {
     try {
-      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+      const openai = new OpenAI({ 
+        apiKey: process.env.OPENAI_API_KEY,
+        baseURL: process.env.OPENAI_BASE_URL || undefined
+      });
       const content: any[] = [];
       content.push({ type: "text", text: prompt });
       if (imageBase64) {
         content.push({
           type: "image_url",
-          image_url: { url: `data:image/png;base64,${imageBase64}` }
+          image_url: { url: `data:${mimeType};base64,${imageBase64}` }
         });
       }
 
-      const completion = await openai.chat.completions.create({
-        model: "gpt-4o",
+      const res = await openai.chat.completions.create({
+        model: process.env.OPENAI_MODEL_NAME || "gpt-4o",
         messages: [
-          { role: "system", content: "You are a helpful coding assistant that outputs strictly valid JSON." },
+          { role: "system", content: "You are a helpful coding assistant that outputs strictly valid JSON array of patch objects." },
           { role: "user", content }
         ],
-        response_format: { type: "json_object" }
+        max_tokens: 2000,
       });
-      return parseAIResponse(completion.choices[0].message.content || '');
+      return parseAIResponse(res.choices[0]?.message?.content || '');
     } catch (e: any) {
       throw new Error(`OpenAI API Error: ${e.message || 'Connection failed'}`);
     }
