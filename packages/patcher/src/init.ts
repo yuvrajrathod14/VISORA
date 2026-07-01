@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url';
 import chalk from 'chalk';
 import ora from 'ora';
 import { execSync } from 'child_process';
+import { select } from '@inquirer/prompts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -17,6 +18,16 @@ function detectPackageManager(targetDir: string) {
   if (fs.existsSync(path.join(targetDir, 'pnpm-lock.yaml'))) return 'pnpm';
   if (fs.existsSync(path.join(targetDir, 'yarn.lock'))) return 'yarn';
   return 'npm';
+}
+
+function isVisoraInstalled(targetDir: string) {
+  const pkgPath = path.join(targetDir, 'package.json');
+  if (fs.existsSync(pkgPath)) {
+    const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
+    const allDeps = { ...pkg.dependencies, ...pkg.devDependencies };
+    return !!allDeps['visora-cli'];
+  }
+  return false;
 }
 
 function detectFramework(targetDir: string) {
@@ -180,6 +191,25 @@ export async function runInit(projectRoot: string) {
   console.log();
   console.log(chalk.gray('  Automated Setup Script by Visionatrix'));
   console.log();
+  
+  if (isVisoraInstalled(projectRoot)) {
+    console.log(INFO(`  Visora is already installed in this project!`));
+    const action = await select({
+      message: 'What would you like to do?',
+      choices: [
+        { name: 'Cancel', value: 'cancel' },
+        { name: 'Repair / Reinstall', value: 'repair' }
+      ]
+    });
+    
+    if (action === 'cancel') {
+      console.log();
+      console.log(DIM('  Setup cancelled.'));
+      process.exit(0);
+    }
+    console.log();
+  }
+
   const pm = detectPackageManager(projectRoot);
   const framework = detectFramework(projectRoot);
   
