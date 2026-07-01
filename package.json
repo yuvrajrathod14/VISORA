@@ -4,6 +4,7 @@
   "version": "0.1.0",
   "description": "Visora by Visionatrixx — The Visual Context Engine for AI Coding",
   "type": "module",
+  "packageManager": "pnpm@9.15.0",
   "scripts": {
     "dev": "pnpm --filter visora-demo dev",
     "dev:next": "pnpm --filter demo-next dev",
