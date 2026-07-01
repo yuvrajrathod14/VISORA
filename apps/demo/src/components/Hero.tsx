@@ -1,4 +1,5 @@
 import InitTerminal from './InitTerminal';
+import DaemonTerminal from './DaemonTerminal';
 
 export default function Hero() {
   return (
@@ -26,8 +27,13 @@ export default function Hero() {
         </button>
       </div>
 
-      <div className="entrance-3d entrance-delay-3" style={{ width: '100%', marginTop: '40px' }}>
-        <InitTerminal />
+      <div className="entrance-3d entrance-delay-3" style={{ display: 'flex', flexWrap: 'wrap', gap: '2rem', width: '100%', maxWidth: '1400px', margin: '40px auto 0', justifyContent: 'center' }}>
+        <div style={{ flex: '1', maxWidth: '600px' }}>
+          <InitTerminal />
+        </div>
+        <div style={{ flex: '1', maxWidth: '600px' }}>
+          <DaemonTerminal />
+        </div>
       </div>
     </section>
   );

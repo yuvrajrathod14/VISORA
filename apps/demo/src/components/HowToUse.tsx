@@ -74,6 +74,11 @@ export default function HowToUse() {
               
               <p style={{ marginTop: '24px' }}>Once installed, start the autonomous daemon in a separate terminal:</p>
               
+              <CodeBlock 
+                comment="Run the AI Daemon (Will ask for your API key on first run)"
+                code="npx visora" 
+              />
+              
               <DaemonTerminal />
               
               <div className="pro-tip">
