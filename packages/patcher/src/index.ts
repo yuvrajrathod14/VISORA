@@ -192,7 +192,13 @@ function getActiveProvider(): string {
 function printBanner() {
   console.clear();
   console.log();
-  console.log(BRAND('  Visora'));
+  console.log(BRAND(` _   _ _____ _____ ___________  ___ `));
+  console.log(BRAND(`| | | |_   _/  ___|  _  | ___ \\/ _ \\`));
+  console.log(BRAND(`| | | | | | \\ \`--.| | | | |_/ / /_\\ \\`));
+  console.log(BRAND(`| | | | | |  \`--. \\ | | |    /|  _  |`));
+  console.log(BRAND(`\\ \\_/ /_| |_/\\__/ / \\_/ / |\\ \\| | | |`));
+  console.log(BRAND(` \\___/ \\___/\\____/ \\___/\\_| \\_\\_| |_/`));
+  console.log();
   console.log(DIM('  The Autonomous Visual Coding Agent'));
   console.log(DIM('  by Visionatrix'));
   console.log();

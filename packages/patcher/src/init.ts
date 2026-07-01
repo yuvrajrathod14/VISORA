@@ -171,6 +171,15 @@ function createNextApiRoute(targetDir: string) {
 
 export async function runInit(projectRoot: string) {
   console.log();
+  console.log(chalk.hex('#d97757').bold(` _   _ _____ _____ ___________  ___ `));
+  console.log(chalk.hex('#d97757').bold(`| | | |_   _/  ___|  _  | ___ \\/ _ \\`));
+  console.log(chalk.hex('#d97757').bold(`| | | | | | \\ \`--.| | | | |_/ / /_\\ \\`));
+  console.log(chalk.hex('#d97757').bold(`| | | | | |  \`--. \\ | | |    /|  _  |`));
+  console.log(chalk.hex('#d97757').bold(`\\ \\_/ /_| |_/\\__/ / \\_/ / |\\ \\| | | |`));
+  console.log(chalk.hex('#d97757').bold(` \\___/ \\___/\\____/ \\___/\\_| \\_\\_| |_/`));
+  console.log();
+  console.log(chalk.gray('  Automated Setup Script by Visionatrix'));
+  console.log();
   const pm = detectPackageManager(projectRoot);
   const framework = detectFramework(projectRoot);
   

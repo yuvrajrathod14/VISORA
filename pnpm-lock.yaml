@@ -78,7 +78,7 @@ importers:
         version: 5.9.3
       visora:
         specifier: file:../../packages/patcher
-        version: file:packages/patcher(@types/node@20.19.43)(zod@4.4.3)
+        version: visora-cli@file:packages/patcher(@types/node@20.19.43)(zod@4.4.3)
       visora-next-plugin:
         specifier: file:../../packages/next-plugin
         version: file:packages/next-plugin(next@14.2.35(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -103,7 +103,7 @@ importers:
         version: 6.0.3
       visora:
         specifier: file:../../packages/patcher
-        version: file:packages/patcher(@types/node@24.13.2)(zod@4.4.3)
+        version: visora-cli@file:packages/patcher(@types/node@24.13.2)(zod@4.4.3)
       visora-vite-plugin:
         specifier: file:../../packages/vite-plugin
         version: file:packages/vite-plugin(vite@8.1.1(@types/node@24.13.2)(esbuild@0.27.7)(jiti@1.21.7))
@@ -3847,6 +3847,10 @@ packages:
     resolution: {integrity: sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==}
     engines: {node: '>= 0.8'}
 
+  visora-cli@file:packages/patcher:
+    resolution: {directory: packages/patcher, type: directory}
+    hasBin: true
+
   visora-next-plugin@file:packages/next-plugin:
     resolution: {directory: packages/next-plugin, type: directory}
     peerDependencies:
@@ -3858,10 +3862,6 @@ packages:
     resolution: {directory: packages/vite-plugin, type: directory}
     peerDependencies:
       vite: ^5.0.0 || ^6.0.0
-
-  visora@file:packages/patcher:
-    resolution: {directory: packages/patcher, type: directory}
-    hasBin: true
 
   vite@5.4.21:
     resolution: {integrity: sha512-o5a9xKjbtuhY6Bi5S3+HvbRERmouabWbyUcpXXUA1u+GNUKoROi9byOJ8M0nHbHYHkYICiMlqxkg1KkYmm25Sw==}
@@ -7885,18 +7885,7 @@ snapshots:
 
   vary@1.1.2: {}
 
-  visora-next-plugin@file:packages/next-plugin(next@14.2.35(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
-    dependencies:
-      next: 14.2.35(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-
-  visora-vite-plugin@file:packages/vite-plugin(vite@8.1.1(@types/node@24.13.2)(esbuild@0.27.7)(jiti@1.21.7)):
-    dependencies:
-      visora-shared: link:packages/shared
-      vite: 8.1.1(@types/node@24.13.2)(esbuild@0.27.7)(jiti@1.21.7)
-
-  visora@file:packages/patcher(@types/node@20.19.43)(zod@4.4.3):
+  visora-cli@file:packages/patcher(@types/node@20.19.43)(zod@4.4.3):
     dependencies:
       '@anthropic-ai/sdk': 0.106.0(zod@4.4.3)
       '@google/generative-ai': 0.24.1
@@ -7916,7 +7905,7 @@ snapshots:
       - ws
       - zod
 
-  visora@file:packages/patcher(@types/node@24.13.2)(zod@4.4.3):
+  visora-cli@file:packages/patcher(@types/node@24.13.2)(zod@4.4.3):
     dependencies:
       '@anthropic-ai/sdk': 0.106.0(zod@4.4.3)
       '@google/generative-ai': 0.24.1
@@ -7935,6 +7924,17 @@ snapshots:
       - supports-color
       - ws
       - zod
+
+  visora-next-plugin@file:packages/next-plugin(next@14.2.35(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+    dependencies:
+      next: 14.2.35(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+
+  visora-vite-plugin@file:packages/vite-plugin(vite@8.1.1(@types/node@24.13.2)(esbuild@0.27.7)(jiti@1.21.7)):
+    dependencies:
+      visora-shared: link:packages/shared
+      vite: 8.1.1(@types/node@24.13.2)(esbuild@0.27.7)(jiti@1.21.7)
 
   vite@5.4.21(@types/node@22.20.0)(lightningcss@1.32.0):
     dependencies:
