@@ -22,6 +22,7 @@ import { generatePatch } from './ai';
 import { applyPatch } from './diff';
 import { checkAndRunOnboarding } from './onboarding';
 import { runInit, runRemove } from './init.js';
+import boxen from 'boxen';
 import express from 'express';
 import crypto from 'crypto';
 
@@ -189,6 +190,12 @@ function getActiveProvider(): string {
   return 'None';
 }
 
+function padRight(str: string, total: number) {
+  // Simple ANSI strip for padding calculation
+  const len = str.replace(/\\x1B\\[\\d+;]*[a-zA-Z]/g, '').length;
+  return str + ' '.repeat(Math.max(0, total - len));
+}
+
 function printBanner() {
   console.clear();
   console.log();
@@ -199,11 +206,47 @@ function printBanner() {
   console.log(BRAND(`\\ \\_/ /_| |_/\\__/ / \\_/ / |\\ \\| | | |`));
   console.log(BRAND(` \\___/ \\___/\\____/ \\___/\\_| \\_\\_| |_/`));
   console.log();
-  console.log(DIM('  The Autonomous Visual Coding Agent'));
-  console.log(DIM('  by Visionatrix'));
-  console.log();
-  console.log(DIVIDER);
-  console.log();
+
+  const providerDisplay = config?.provider ? `${config.provider}` : 'Not Configured';
+  const rootDisplay = projectRoot.length > 30 ? '...' + projectRoot.slice(-27) : projectRoot;
+  
+  const leftCol = [
+    chalk.hex('#d97757')(`   \\ \\ / /`),
+    chalk.hex('#d97757')(`    \\ V / `),
+    chalk.hex('#d97757')(`     \\_/  `),
+    ``,
+    DIM(`Provider `) + chalk.white(providerDisplay),
+    DIM(`Target   `) + chalk.white(rootDisplay)
+  ];
+
+  const rightCol = [
+    chalk.white.bold(`Available Tools`),
+    chalk.gray(`visora       `) + chalk.dim(`start daemon`),
+    chalk.gray(`visora init  `) + chalk.dim(`install to project`),
+    chalk.gray(`visora remove`) + chalk.dim(`cleanly unhook`),
+    ``,
+    chalk.white.bold(`Active Modules`),
+    chalk.green(`✔`) + chalk.gray(` AST Engine  `) + chalk.green(`✔`) + chalk.gray(` Visual UI `)
+  ];
+
+  const maxLines = Math.max(leftCol.length, rightCol.length);
+  const rows = [];
+  for (let i = 0; i < maxLines; i++) {
+    const left = padRight(leftCol[i] || '', 38);
+    const right = rightCol[i] || '';
+    rows.push(`${left}${right}`);
+  }
+
+  const box = boxen(rows.join('\\n'), {
+    padding: { top: 0, bottom: 0, left: 2, right: 2 },
+    margin: { top: 0, bottom: 1, left: 0, right: 0 },
+    borderStyle: 'round',
+    borderColor: '#d97757',
+    title: chalk.white(` Visora Agent v0.1.7 `),
+    titleAlignment: 'left'
+  });
+
+  console.log(box);
 }
 
 // ═══════════════════════════════════════════════════════════

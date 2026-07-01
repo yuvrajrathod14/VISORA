@@ -18,6 +18,7 @@
     "@anthropic-ai/sdk": "^0.106.0",
     "@google/generative-ai": "^0.24.1",
     "@inquirer/prompts": "^8.5.2",
+    "boxen": "^8.0.1",
     "chalk": "^5.6.2",
     "chokidar": "^5.0.0",
     "dotenv": "^17.4.2",
@@ -28,9 +29,9 @@
   "devDependencies": {
     "@types/express": "^5.0.6",
     "@types/node": "^22.20.0",
-    "visora-vite-plugin": "workspace:*",
     "tsup": "^8.5.1",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "visora-vite-plugin": "workspace:*"
   },
   "publishConfig": {
     "access": "public"

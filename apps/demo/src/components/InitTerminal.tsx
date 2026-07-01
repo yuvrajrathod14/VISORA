@@ -26,6 +26,15 @@ export default function InitTerminal() {
       const timeout = setTimeout(() => setStep(s => s + 1), delays[step] || 800);
       return () => clearTimeout(timeout);
     }
+
+    // 3. Reset loop
+    if (step >= 6) {
+      const timeout = setTimeout(() => {
+        setStep(0);
+        setTypedCommand('');
+      }, 5000); // Wait 5 seconds before restarting
+      return () => clearTimeout(timeout);
+    }
   }, [step, typedCommand]);
 
   return (
