@@ -117,9 +117,12 @@ function patchNextLayout(targetDir: string): boolean {
   }
 
   if (!layoutPath) throw new Error('Could not find app/layout.tsx or pages/_app.tsx in the project.');
-  if (content.includes('<VisoraTracker')) return true; // already patched
-
-  // Inject Import
+  
+  // Clean up legacy imports
+  content = content.replace(/import\s+\{\s*VisoraTracker\s*\}\s+from\s+['"]@visora\/next-plugin['"];?\s*\n?/g, '');
+  content = content.replace(/import\s+\{\s*VisoraTracker\s*\}\s+from\s+['"]visora-next-plugin['"];?\s*\n?/g, '');
+  
+  // Inject Import safely
   const importStatement = `import { VisoraTracker } from 'visora-next-plugin';\n`;
   const lastImportIndex = content.lastIndexOf('import ');
   if (lastImportIndex !== -1) {
@@ -129,18 +132,19 @@ function patchNextLayout(targetDir: string): boolean {
     content = importStatement + content;
   }
 
-  // Inject Component inside <body> or main wrapper
-  const bodyTagRegex = /<body[^>]*>/i;
-  if (bodyTagRegex.test(content)) {
-    content = content.replace(bodyTagRegex, `$& \n        <VisoraTracker />`);
-  } else {
-    // If no body tag (like pages/_app), just inject it near the return statement's main wrapper
-    // This is a naive injection, but works for most standard _app.tsx
-    const returnRegex = /return\s*\(\s*<[^>]+>/;
-    if (returnRegex.test(content)) {
-      content = content.replace(returnRegex, `$& \n      <VisoraTracker />`);
+  // Inject Component inside <body> or main wrapper if it isn't there already
+  if (!content.includes('<VisoraTracker')) {
+    const bodyTagRegex = /<body[^>]*>/i;
+    if (bodyTagRegex.test(content)) {
+      content = content.replace(bodyTagRegex, `$& \n        <VisoraTracker />`);
     } else {
-      throw new Error('Could not find a place to inject <VisoraTracker /> in your layout.');
+      // If no body tag (like pages/_app), just inject it near the return statement's main wrapper
+      const returnRegex = /return\s*\(\s*<[^>]+>/;
+      if (returnRegex.test(content)) {
+        content = content.replace(returnRegex, `$& \n      <VisoraTracker />`);
+      } else {
+        throw new Error('Could not find a place to inject <VisoraTracker /> in your layout.');
+      }
     }
   }
 
@@ -303,6 +307,7 @@ function unpatchNextLayout(targetDir: string) {
   if (!layoutPath) return;
 
   // Remove import
+  content = content.replace(/import\s+\{\s*VisoraTracker\s*\}\s+from\s+['"]@visora\/next-plugin['"];?\s*\n?/g, '');
   content = content.replace(/import\s+\{\s*VisoraTracker\s*\}\s+from\s+['"]visora-next-plugin['"];?\s*\n?/g, '');
   // Remove Component
   content = content.replace(/<VisoraTracker\s*\/>\s*\n?/g, '');
