@@ -4,8 +4,6 @@ export default function Hero() {
   return (
     <section className="hero perspective-container">
       {/* 3D Background Elements */}
-      <div className="hero-orb-1 float-3d"></div>
-      <div className="hero-orb-2 float-3d float-3d-delay-1"></div>
 
       <div className="hero-badge entrance-3d">
         <span className="highlight">New</span> Introducing Visora v1.0
