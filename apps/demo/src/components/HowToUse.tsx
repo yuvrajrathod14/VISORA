@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import InitTerminal from './InitTerminal';
+import DaemonTerminal from './DaemonTerminal';
 
 const CodeBlock = ({ code, comment }: { code: string; comment?: string }) => {
   const [copied, setCopied] = useState(false);
@@ -73,10 +74,7 @@ export default function HowToUse() {
               
               <p style={{ marginTop: '24px' }}>Once installed, start the autonomous daemon in a separate terminal:</p>
               
-              <CodeBlock 
-                comment="Run the AI Daemon (Will ask for your API key on first run)"
-                code="npx visora-cli" 
-              />
+              <DaemonTerminal />
               
               <div className="pro-tip">
                 <strong>💡 Pro Tip:</strong> Keep the daemon running in the background while you code. When you Alt+Click a UI component in the browser, the daemon instantly writes the patch!
