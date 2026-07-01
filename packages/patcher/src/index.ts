@@ -416,7 +416,9 @@ function undoLastPatch() {
 // ═══════════════════════════════════════════════════════════
 if (args.includes('--help') || args.includes('-h')) showHelp();
 if (args.includes('--version') || args.includes('-v')) showVersion();
-if (args.includes('init') || args.includes('--init')) runInit(projectRoot);
+if (args.includes('init') || args.includes('--init')) {
+  await runInit(projectRoot);
+}
 if (args.includes('--status') || args.includes('-s')) showStatus();
 if (args.includes('--clear')) clearQueues();
 if (args.includes('--purge')) purgeAll();
