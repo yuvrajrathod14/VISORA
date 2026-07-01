@@ -21,8 +21,9 @@ export default function Terminal() {
     }
     
     // 2. Sequential output
-    if (step > 0 && step < 6) {
-      const timeout = setTimeout(() => setStep(s => s + 1), step === 1 ? 400 : 800);
+    if (step > 0 && step < 7) {
+      const delays = [0, 400, 800, 400, 400, 800, 800];
+      const timeout = setTimeout(() => setStep(s => s + 1), delays[step] || 800);
       return () => clearTimeout(timeout);
     }
   }, [step, typedCommand]);
@@ -38,38 +39,63 @@ export default function Terminal() {
         <div className="terminal-title">bash — yuvraj@visionatrix</div>
       </div>
       <div className="terminal-body">
+        
+        {/* Command Line */}
         <div className="terminal-line">
           <span className="prompt">~/project $</span>
           <span className="command">{typedCommand}</span>
           {step === 0 && <span className="cursor"></span>}
         </div>
         
+        {/* Output Sequence */}
         {step >= 2 && (
-          <div className="terminal-line output text-cyan">
-            [Visora] 🔍 Detecting framework... Next.js (App Router)
+          <div className="terminal-line output text-gray">
+            ◇ injected env (2) from .env // tip: ⌘ custom filepath {'{'} path: '/custom/path/.env' {'}'}
           </div>
         )}
         
         {step >= 3 && (
-          <div className="terminal-line output text-gray">
-            [Visora] 📦 Installing visora-next-plugin and visora-cli via npm...
-          </div>
+          <>
+            <br/>
+            <div className="terminal-line output text-green">
+              ✔ Visora engines installed successfully.
+            </div>
+          </>
         )}
         
         {step >= 4 && (
-          <div className="terminal-line output text-gray">
-            [Visora] ⚙️ Patching app/layout.tsx...
+          <div className="terminal-line output text-green">
+            ✔ Framework patched successfully.
           </div>
         )}
         
         {step >= 5 && (
-          <div className="terminal-line output text-green">
-            [Visora] ✨ Successfully initialized Visora!
-          </div>
+          <>
+            <br/>
+            <div className="terminal-line output text-cyan">
+              ✨ Visora Initialization Complete!
+            </div>
+          </>
+        )}
+
+        {step >= 6 && (
+          <>
+            <br/>
+            <div className="terminal-line output text-gray">
+              Next steps:
+            </div>
+            <div className="terminal-line output text-gray" style={{ paddingLeft: '8px' }}>
+              1. Start your dev server: npm run dev
+            </div>
+            <div className="terminal-line output text-gray" style={{ paddingLeft: '8px' }}>
+              2. In a second terminal:  npx visora-cli
+            </div>
+          </>
         )}
         
-        {step >= 6 && (
-          <div className="terminal-line">
+        {/* Final Prompt */}
+        {step >= 7 && (
+          <div className="terminal-line" style={{ marginTop: '16px' }}>
             <span className="prompt">~/project $</span>
             <span className="cursor blink"></span>
           </div>
