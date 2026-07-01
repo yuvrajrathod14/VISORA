@@ -351,7 +351,7 @@ export async function runRemove(projectRoot: string) {
   const pm = detectPackageManager(projectRoot);
   const framework = detectFramework(projectRoot);
   
-  const spinnerConfig = ora(\`Unpatching \${framework === 'next' ? 'layout & api route' : 'vite.config'}...\`).start();
+  const spinnerConfig = ora('Unpatching ' + (framework === 'next' ? 'layout & api route' : 'vite.config') + '...').start();
   try {
     if (framework === 'next') {
       unpatchNextLayout(projectRoot);
@@ -360,17 +360,17 @@ export async function runRemove(projectRoot: string) {
       unpatchViteConfig(projectRoot);
     }
     removeVisoraFolder(projectRoot);
-    spinnerConfig.succeed(SUCCESS(\`Framework unpatched and configs removed.\`));
+    spinnerConfig.succeed(SUCCESS('Framework unpatched and configs removed.'));
   } catch (e: any) {
-    spinnerConfig.warn(chalk.yellow(\`Could not fully unpatch: \${e.message}\`));
+    spinnerConfig.warn(chalk.yellow('Could not fully unpatch: ' + e.message));
   }
 
-  const spinnerDeps = ora(\`Removing Visora packages using \${pm}...\`).start();
+  const spinnerDeps = ora('Removing Visora packages using ' + pm + '...').start();
   try {
     uninstallDependencies(projectRoot, pm);
-    spinnerDeps.succeed(SUCCESS(\`Visora packages removed successfully.\`));
+    spinnerDeps.succeed(SUCCESS('Visora packages removed successfully.'));
   } catch (e: any) {
-    spinnerDeps.fail(FAIL(\`Failed to uninstall dependencies.\`));
+    spinnerDeps.fail(FAIL('Failed to uninstall dependencies.'));
   }
 
   console.log();
