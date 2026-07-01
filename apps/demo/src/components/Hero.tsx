@@ -1,4 +1,4 @@
-import Terminal from './Terminal';
+import InitTerminal from './InitTerminal';
 
 export default function Hero() {
   return (
@@ -27,7 +27,7 @@ export default function Hero() {
       </div>
 
       <div className="entrance-3d entrance-delay-3" style={{ width: '100%', marginTop: '40px' }}>
-        <Terminal />
+        <InitTerminal />
       </div>
     </section>
   );
