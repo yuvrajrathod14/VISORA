@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import InitTerminal from './InitTerminal';
 
 const CodeBlock = ({ code, comment }: { code: string; comment?: string }) => {
   const [copied, setCopied] = useState(false);
@@ -68,10 +69,7 @@ export default function HowToUse() {
               <h3>Install Visora in your Next.js or Vite app</h3>
               <p>Run our automated setup script in the root of your existing project. It will detect your framework and configure everything.</p>
               
-              <CodeBlock 
-                comment="Initialize Visora automatically"
-                code="npx visora-cli init" 
-              />
+              <InitTerminal />
               
               <p style={{ marginTop: '24px' }}>Once installed, start the autonomous daemon in a separate terminal:</p>
               
