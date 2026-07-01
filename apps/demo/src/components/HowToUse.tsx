@@ -1,127 +1,138 @@
+import { useState } from 'react';
+
+const CodeBlock = ({ code, comment }: { code: string; comment?: string }) => {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(code);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="modern-code-block">
+      <div className="code-header">
+        <span className="code-dot red"></span>
+        <span className="code-dot yellow"></span>
+        <span className="code-dot green"></span>
+        <button className="copy-btn" onClick={handleCopy}>
+          {copied ? 'Copied! ✓' : 'Copy'}
+        </button>
+      </div>
+      <pre>
+        <code>
+          {comment && <span className="code-comment"># {comment}</span>}
+          {comment && '\n'}
+          {code}
+        </code>
+      </pre>
+    </div>
+  );
+};
+
 export default function HowToUse() {
+  const [activeTab, setActiveTab] = useState<'install' | 'cli' | 'mcp'>('install');
+
   return (
     <section className="how-to-use" id="docs">
       <div className="how-to-header">
         <h2>Quick Start Guide</h2>
-        <p>Visora features a powerful dual-workflow architecture. Choose how you want to code.</p>
+        <p>Get up and running with Visora in under 60 seconds.</p>
       </div>
-      
-      <div className="how-to-grid">
-        {/* Workflow A */}
-        <div className="how-to-card tilt-card">
-          <div className="how-to-step">
-            <span className="step-number">Workflow A</span>
-            <h3>The Autonomous Daemon</h3>
-          </div>
-          <p>
-            Don't want to use an IDE chat? Visora comes with a built-in CLI agent that runs in the background and writes code for you automatically.
-          </p>
-          <div className="code-block">
-            <pre>
-              <code>
-<span className="code-comment"># First time? The wizard will ask for your API key:</span>
-npx visora-cli
 
-<span className="code-comment"># Or set it manually in .env:</span>
-ANTHROPIC_API_KEY=sk-ant-...
-<span className="code-comment"># Also supports: OPENAI, GEMINI, or OLLAMA</span>
-              </code>
-            </pre>
-          </div>
-          <p className="step-footer">
-            Alt+Click components in your browser, type an instruction, and watch the terminal. The daemon will instantly patch your source files!
-          </p>
+      <div className="tabs-container">
+        <div className="tabs-nav">
+          <button 
+            className={`tab-btn ${activeTab === 'install' ? 'active' : ''}`}
+            onClick={() => setActiveTab('install')}
+          >
+            Installation
+          </button>
+          <button 
+            className={`tab-btn ${activeTab === 'cli' ? 'active' : ''}`}
+            onClick={() => setActiveTab('cli')}
+          >
+            CLI Reference
+          </button>
+          <button 
+            className={`tab-btn ${activeTab === 'mcp' ? 'active' : ''}`}
+            onClick={() => setActiveTab('mcp')}
+          >
+            IDE Setup (MCP)
+          </button>
         </div>
 
-        {/* Workflow B */}
-        <div className="how-to-card">
-          <div className="how-to-step">
-            <span className="step-number">Workflow B</span>
-            <h3>The IDE MCP Server</h3>
-          </div>
-          <p>
-            If you prefer using <strong>Cursor</strong> or <strong>Windsurf</strong>, you can plug Visora directly into your IDE's brain.
-          </p>
-          <div className="code-block">
-            <pre>
-              <code>
-<span className="code-comment"># Add a new MCP Server in Cursor/Windsurf settings:</span>
-Name:    visora
-Type:    command
-Command: node
-Args:    /path/to/VISORA/packages/mcp-server/dist/index.js
-Env:     VISORA_PROJECT_ROOT=/path/to/VISORA
-              </code>
-            </pre>
-          </div>
-          <p className="step-footer">
-            Queue instructions in the browser, then tell your IDE chat: <strong>"Process my Visora queue"</strong>. The IDE will pull the AST context and write the code interactively.
-          </p>
-        </div>
+        <div className="tab-content">
+          {activeTab === 'install' && (
+            <div className="tab-pane fade-in">
+              <h3>Install Visora in your Next.js or Vite app</h3>
+              <p>Run our automated setup script in the root of your existing project. It will detect your framework and configure everything.</p>
+              
+              <CodeBlock 
+                comment="Initialize Visora automatically"
+                code="npx visora-cli init" 
+              />
+              
+              <p style={{ marginTop: '24px' }}>Once installed, start the autonomous daemon in a separate terminal:</p>
+              
+              <CodeBlock 
+                comment="Run the AI Daemon (Will ask for your API key on first run)"
+                code="npx visora-cli" 
+              />
+              
+              <div className="pro-tip">
+                <strong>💡 Pro Tip:</strong> Keep the daemon running in the background while you code. When you Alt+Click a UI component in the browser, the daemon instantly writes the patch!
+              </div>
+            </div>
+          )}
 
-        {/* Live Project Installation */}
-        <div className="how-to-card">
-          <div className="how-to-step">
-            <span className="step-number">Setup</span>
-            <h3>Install in your Live Project</h3>
-          </div>
-          <p>
-            You can use Visora in your own live Vite/React projects by installing it from this local repository.
-          </p>
-          <div className="code-block">
-            <pre>
-              <code>
-<span className="code-comment"># 1. Initialize Visora in your project</span>
-npx visora-cli init
+          {activeTab === 'cli' && (
+            <div className="tab-pane fade-in">
+              <h3>Visora CLI Commands</h3>
+              <p>The daemon comes with built-in tools for managing queues, API keys, and workspace status.</p>
+              
+              <div className="cli-grid">
+                <div className="cli-item">
+                  <CodeBlock code="npx visora-cli" />
+                  <span>Start the background daemon</span>
+                </div>
+                <div className="cli-item">
+                  <CodeBlock code="npx visora-cli --config" />
+                  <span>Re-configure your AI provider</span>
+                </div>
+                <div className="cli-item">
+                  <CodeBlock code="npx visora-cli --status" />
+                  <span>View workspace queue status</span>
+                </div>
+                <div className="cli-item">
+                  <CodeBlock code="npx visora-cli --clear" />
+                  <span>Clear completed/failed tasks</span>
+                </div>
+                <div className="cli-item">
+                  <CodeBlock code="npx visora-cli --undo" />
+                  <span>Undo the last successful AI patch</span>
+                </div>
+              </div>
+            </div>
+          )}
 
-<span className="code-comment"># 2. Add to vite.config.ts</span>
-import visora from 'visora-vite-plugin';
-export default defineConfig({`{`}
-  plugins: [react(), visora()]
-{`}`});
-              </code>
-            </pre>
-          </div>
-          <p className="step-footer">
-            Start your dev server. The overlay will instantly appear in your live project!
-          </p>
-        </div>
+          {activeTab === 'mcp' && (
+            <div className="tab-pane fade-in">
+              <h3>Cursor & Windsurf Integration</h3>
+              <p>If you prefer using your IDE's built-in AI chat, you can connect Visora as an MCP (Model Context Protocol) Server.</p>
+              
+              <div className="mcp-config">
+                <CodeBlock 
+                  comment="Add this to your IDE's MCP settings:"
+                  code={`Name:    visora\nType:    command\nCommand: npx\nArgs:    -y @visora/mcp-server`}
+                />
+              </div>
 
-        {/* CLI Reference */}
-        <div className="how-to-card">
-          <div className="how-to-step">
-            <span className="step-number">CLI</span>
-            <h3>Command Reference</h3>
-          </div>
-          <p>
-            The Visora CLI is a professional-grade tool with built-in help, status monitoring, and queue management.
-          </p>
-          <div className="code-block">
-            <pre>
-              <code>
-<span className="code-comment"># Start the autonomous daemon</span>
-npx visora-cli
-
-<span className="code-comment"># Re-configure your AI provider</span>
-npx visora-cli --config
-
-<span className="code-comment"># Show queue status across workspace</span>
-npx visora-cli --status
-
-<span className="code-comment"># Clear completed/failed tasks</span>
-npx visora-cli --clear
-
-<span className="code-comment"># Show full help page</span>
-npx visora-cli --help
-
-<span className="code-comment"># Show version</span>
-npx visora-cli --version
-              </code>
-            </pre>
-          </div>
-          <p className="step-footer">
-            Run <strong>npx visora-cli --help</strong> at any time for the complete usage guide, supported env vars, and step-by-step instructions.
-          </p>
+              <div className="pro-tip" style={{ marginTop: '24px' }}>
+                <strong>🚀 Workflow:</strong> Queue instructions via Alt+Click in the browser, then tell your IDE chat: <em>"Process my Visora queue"</em>. The IDE will pull the perfect AST context directly from the browser!
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </section>
