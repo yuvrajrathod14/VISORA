@@ -18,10 +18,9 @@ export default function Header() {
       <ul className="header-nav">
         <li><a href="#features">Features</a></li>
         <li><a href="#docs">Documentation</a></li>
-        <li><a href="#pricing">Pricing</a></li>
       </ul>
 
-      <button className="header-cta" id="header-cta-btn">
+      <button className="header-cta" id="header-cta-btn" onClick={() => window.location.href='#docs'}>
         Install Now
       </button>
     </header>
