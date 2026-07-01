@@ -166,7 +166,11 @@ Connect your AI IDE (Cursor, Windsurf) to the Visora MCP server for interactive,
 - **Args:** `/absolute/path/to/VISORA/packages/mcp-server/dist/index.js`
 - **Env:** `VISORA_PROJECT_ROOT=/absolute/path/to/VISORA`
 
-Then simply tell your IDE chat: *"Process my Visora queue"*.
+Then, copy and paste this exact prompt into your IDE chat (Cursor/Windsurf/Antigravity):
+
+> **"Process my Visora queue"**
+
+The IDE will instantly read the Visora AST context and apply the required code patches!
 
 ---
 

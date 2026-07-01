@@ -129,7 +129,10 @@ export default function HowToUse() {
               </div>
 
               <div className="pro-tip" style={{ marginTop: '24px' }}>
-                <strong>🚀 Workflow:</strong> Queue instructions via Alt+Click in the browser, then tell your IDE chat: <em>"Process my Visora queue"</em>. The IDE will pull the perfect AST context directly from the browser!
+                <strong>🚀 IDE Prompt:</strong> Copy and paste this exact command into Cursor, Windsurf, or Antigravity after queueing instructions:
+                <div style={{ marginTop: '12px' }}>
+                  <CodeBlock code="Process my Visora queue" />
+                </div>
               </div>
             </div>
           )}
