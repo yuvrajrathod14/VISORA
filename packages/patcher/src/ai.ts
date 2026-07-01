@@ -80,7 +80,7 @@ Reply ONLY with a JSON ARRAY of objects in this exact format (no markdown, no re
       content.push({ type: "text", text: prompt });
 
       const msg = await anthropic.messages.create({
-        model: "claude-3-5-sonnet-20241022",
+        model: process.env.ANTHROPIC_MODEL || "claude-3-5-sonnet-20241022",
         max_tokens: 2000,
         system: "You are a helpful coding assistant that outputs strictly valid JSON.",
         messages: [{ role: "user", content }]
@@ -123,7 +123,7 @@ Reply ONLY with a JSON ARRAY of objects in this exact format (no markdown, no re
   if (process.env.GEMINI_API_KEY) {
     try {
       const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+      const model = genAI.getGenerativeModel({ model: process.env.GEMINI_MODEL || "gemini-1.5-pro" });
       const parts: any[] = [{ text: prompt }];
       if (imageBase64) {
         parts.push({

@@ -88,9 +88,9 @@ export default function DaemonTerminal() {
             {step === 1 && (
               <>
                 <div style={{ color: '#fff', fontWeight: 'bold' }}>? Select AI Provider: <span style={{ color: '#888', fontWeight: 'normal' }}>(Type number or arrow keys)</span></div>
-                <div style={{ color: '#d97757', marginLeft: '12px' }}>❯ 1) Anthropic (Claude 3.5 Sonnet)</div>
-                <div style={{ color: '#888', marginLeft: '12px' }}>  2) OpenAI (GPT-4o)</div>
-                <div style={{ color: '#888', marginLeft: '12px' }}>  3) Google Gemini (1.5 Pro)</div>
+                <div style={{ color: '#d97757', marginLeft: '12px' }}>❯ 1) Anthropic (Claude Models)</div>
+                <div style={{ color: '#888', marginLeft: '12px' }}>  2) OpenAI (GPT Models)</div>
+                <div style={{ color: '#888', marginLeft: '12px' }}>  3) Google Gemini</div>
                 <div style={{ color: '#888', marginLeft: '12px' }}>  4) Ollama (Local Models)</div>
                 <div style={{ color: '#888', marginLeft: '12px' }}>  5) OpenRouter (Multi-model Aggregator)</div>
                 <div style={{ color: '#888', marginLeft: '12px' }}>  6) DeepSeek (V3 / R1 Coder)</div>
@@ -106,7 +106,11 @@ export default function DaemonTerminal() {
 
             {step >= 2 && (
               <>
-                <div style={{ color: '#4ade80' }}>✔ <span style={{ color: '#fff', fontWeight: 'bold' }}>Select AI Provider:</span> <span style={{ color: '#d97757' }}>Anthropic (Claude 3.5 Sonnet)</span></div>
+                <div style={{ color: '#4ade80' }}>✔ <span style={{ color: '#fff', fontWeight: 'bold' }}>Select AI Provider:</span> <span style={{ color: '#d97757' }}>Anthropic (Claude Models)</span></div>
+                
+                {step >= 2 && (
+                  <div style={{ color: '#4ade80' }}>✔ <span style={{ color: '#fff', fontWeight: 'bold' }}>Enter Model Name:</span> <span style={{ color: '#d97757' }}>claude-3-5-sonnet-20241022</span></div>
+                )}
                 
                 {step === 2 && (
                   <div style={{ color: '#fff', fontWeight: 'bold', marginTop: '4px' }}>

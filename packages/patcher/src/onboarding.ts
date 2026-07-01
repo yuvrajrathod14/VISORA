@@ -27,9 +27,9 @@ export async function checkAndRunOnboarding(projectRoot: string, force: boolean 
   const provider = await rawlist({
     message: 'Select AI Provider:',
     choices: [
-      { name: 'Anthropic (Claude 3.5 Sonnet)', value: 'anthropic' },
-      { name: 'OpenAI (GPT-4o)', value: 'openai' },
-      { name: 'Google Gemini (1.5 Pro)', value: 'gemini' },
+      { name: 'Anthropic (Claude Models)', value: 'anthropic' },
+      { name: 'OpenAI (GPT Models)', value: 'openai' },
+      { name: 'Google Gemini', value: 'gemini' },
       { name: 'Ollama (Local Models)', value: 'ollama' },
       { name: 'OpenRouter (Multi-model Aggregator)', value: 'openrouter' },
       { name: 'DeepSeek (V3 / R1 Coder)', value: 'deepseek' },
@@ -43,6 +43,7 @@ export async function checkAndRunOnboarding(projectRoot: string, force: boolean 
   let envContent = '\n';
 
   if (provider === 'anthropic') {
+    const model = await input({ message: 'Enter Model Name:', default: 'claude-3-5-sonnet-20241022' });
     while (true) {
       const key = await password({ message: 'Enter your Anthropic API Key (sk-ant-...):', mask: '*' });
       console.log(chalk.gray('Validating key...'));
@@ -50,13 +51,13 @@ export async function checkAndRunOnboarding(projectRoot: string, force: boolean 
         const res = await fetch('https://api.anthropic.com/v1/messages', {
           method: 'POST',
           headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
-          body: JSON.stringify({ model: 'claude-3-5-sonnet-20240620', max_tokens: 1, messages: [{role: 'user', content: 'hi'}] })
+          body: JSON.stringify({ model: model, max_tokens: 1, messages: [{role: 'user', content: 'hi'}] })
         });
         if (res.status === 401 || res.status === 403) {
           console.log(chalk.red('✖ Invalid Anthropic API Key. Please try again.'));
           continue;
         }
-        envContent += `ANTHROPIC_API_KEY=${key}\n`;
+        envContent += `ANTHROPIC_API_KEY=${key}\nANTHROPIC_MODEL=${model}\n`;
         break;
       } catch (err: any) {
         console.log(chalk.red(`✖ Network error while validating: ${err.message}`));
@@ -66,6 +67,7 @@ export async function checkAndRunOnboarding(projectRoot: string, force: boolean 
     const isGemini = provider === 'gemini';
     const baseUrl = isGemini ? 'https://generativelanguage.googleapis.com/v1beta/openai/models' : 'https://api.openai.com/v1/models';
     const msg = isGemini ? 'Enter your Gemini API Key:' : 'Enter your OpenAI API Key (sk-proj-...):';
+    const model = await input({ message: 'Enter Model Name:', default: isGemini ? 'gemini-1.5-pro' : 'gpt-4o' });
     
     while (true) {
       const key = await password({ message: msg, mask: '*' });
@@ -78,8 +80,8 @@ export async function checkAndRunOnboarding(projectRoot: string, force: boolean 
           console.log(chalk.red('✖ Invalid API Key. Please try again.'));
           continue;
         }
-        if (isGemini) envContent += `GEMINI_API_KEY=${key}\n`;
-        else envContent += `OPENAI_API_KEY=${key}\n`;
+        if (isGemini) envContent += `GEMINI_API_KEY=${key}\nGEMINI_MODEL=${model}\n`;
+        else envContent += `OPENAI_API_KEY=${key}\nOPENAI_MODEL_NAME=${model}\n`;
         break;
       } catch (err: any) {
         console.log(chalk.red(`✖ Network error while validating: ${err.message}`));
