@@ -480,8 +480,7 @@ await checkAndRunOnboarding(projectRoot, forceConfig);
 // ═══════════════════════════════════════════════════════════
 printBanner();
 
-
-
+const provider = getActiveProvider();
 let isIdle = true;
 console.log(DIM('  👀 Watching for instructions…\n'));
 
