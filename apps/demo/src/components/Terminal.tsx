@@ -4,7 +4,7 @@ export default function Terminal() {
   const [step, setStep] = useState(0);
   const [typedCommand, setTypedCommand] = useState('');
   
-  const fullCommand = 'npx visora-cli init';
+  const fullCommand = 'npx visora-cli';
 
   useEffect(() => {
     // 1. Typing animation
@@ -15,14 +15,14 @@ export default function Terminal() {
         }, 100);
         return () => clearTimeout(timeout);
       } else {
-        const timeout = setTimeout(() => setStep(1), 500);
+        const timeout = setTimeout(() => setStep(1), 400);
         return () => clearTimeout(timeout);
       }
     }
     
     // 2. Sequential output
-    if (step > 0 && step < 7) {
-      const delays = [0, 400, 800, 400, 400, 800, 800];
+    if (step > 0 && step < 6) {
+      const delays = [0, 600, 800, 1000, 800, 800]; // Timing for each step
       const timeout = setTimeout(() => setStep(s => s + 1), delays[step] || 800);
       return () => clearTimeout(timeout);
     }
@@ -38,7 +38,7 @@ export default function Terminal() {
         </div>
         <div className="terminal-title">bash — yuvraj@visionatrix</div>
       </div>
-      <div className="terminal-body">
+      <div className="terminal-body" style={{ minHeight: '340px' }}>
         
         {/* Command Line */}
         <div className="terminal-line">
@@ -50,55 +50,55 @@ export default function Terminal() {
         {/* Output Sequence */}
         {step >= 2 && (
           <div className="terminal-line output text-gray">
-            ◇ injected env (2) from .env // tip: ⌘ custom filepath {'{'} path: '/custom/path/.env' {'}'}
+            ◇ injected env (2) from .env // tip: ⌘ multiple files {'{'} path: ['.env.local', '.env'] {'}'}
           </div>
         )}
         
         {step >= 3 && (
           <>
             <br/>
-            <div className="terminal-line output text-green">
-              ✔ Visora engines installed successfully.
+            <div className="terminal-line output text-cyan" style={{ fontWeight: 'bold' }}>
+              Visora Configuration
+            </div>
+            <div className="terminal-line output text-gray">
+              ──────────────────────────────────────────────────
             </div>
           </>
         )}
         
         {step >= 4 && (
-          <div className="terminal-line output text-green">
-            ✔ Framework patched successfully.
+          <div className="terminal-line output">
+            Let's set up a new AI provider.
           </div>
-        )}
-        
-        {step >= 5 && (
-          <>
-            <br/>
-            <div className="terminal-line output text-cyan">
-              ✨ Visora Initialization Complete!
-            </div>
-          </>
         )}
 
-        {step >= 6 && (
+        {step >= 5 && (
           <>
+            <div className="terminal-line output" style={{ marginTop: '8px' }}>
+              <span className="text-green" style={{ fontWeight: 'bold' }}>?</span> Which AI Provider would you like to use?
+            </div>
+            
+            <div className="terminal-line output" style={{ marginTop: '4px' }}>
+              <span className="text-cyan">❯ Anthropic (Recommended)</span>
+            </div>
+            <div className="terminal-line output" style={{ paddingLeft: '14px' }}>
+              OpenAI
+            </div>
+            <div className="terminal-line output" style={{ paddingLeft: '14px' }}>
+              Gemini
+            </div>
+            <div className="terminal-line output" style={{ paddingLeft: '14px' }}>
+              Ollama (Local)
+            </div>
+
             <br/>
-            <div className="terminal-line output text-gray">
-              Next steps:
+            <div className="terminal-line output text-gray" style={{ fontStyle: 'italic' }}>
+              Best for complex frontend coding tasks.
             </div>
-            <div className="terminal-line output text-gray" style={{ paddingLeft: '8px' }}>
-              1. Start your dev server: npm run dev
-            </div>
-            <div className="terminal-line output text-gray" style={{ paddingLeft: '8px' }}>
-              2. In a second terminal:  npx visora-cli
+            <div className="terminal-line output text-gray" style={{ fontSize: '12px', marginTop: '4px' }}>
+              ↑↓ navigate • ⏎ select
             </div>
           </>
-        )}
-        
-        {/* Final Prompt */}
-        {step >= 7 && (
-          <div className="terminal-line" style={{ marginTop: '16px' }}>
-            <span className="prompt">~/project $</span>
-            <span className="cursor blink"></span>
-          </div>
         )}
       </div>
     </div>
