@@ -109,6 +109,10 @@ export default function HowToUse() {
                   <span>Clear completed/failed tasks</span>
                 </div>
                 <div className="cli-item">
+                  <CodeBlock code="npx visora-cli remove" />
+                  <span>Uninstall and unpatch Visora</span>
+                </div>
+                <div className="cli-item">
                   <CodeBlock code="npx visora-cli --undo" />
                   <span>Undo the last successful AI patch</span>
                 </div>

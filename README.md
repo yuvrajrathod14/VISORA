@@ -117,6 +117,19 @@ npm run dev
 ```
 
 That's it! Now open your app in the browser, `Alt+Click` any UI element, and the Visora AI will magically patch your code!
+
+---
+
+## 🧹 Uninstalling Visora
+
+To cleanly remove Visora and its injected AST tracking plugins from your project, run:
+
+```bash
+npx visora-cli remove
+```
+
+This will automatically unpatch your config files (Vite/Next.js), delete the injected API routes, and uninstall all Visora packages.
+
 ---
 
 ## ⌨️ CLI Reference
@@ -131,6 +144,7 @@ The Visora CLI is a professional-grade developer tool with full command support.
 | `npx visora-cli --clear` | Remove all completed/failed tasks from queues |
 | `npx visora-cli --purge` | Delete all Visora data, queues, screenshots, and history |
 | `npx visora-cli --undo` | Undo the last successful AI patch |
+| `npx visora-cli remove`  | Cleanly uninstall Visora and unpatch all config files |
 | `npx visora-cli --help` | Display the full help page with usage & env vars |
 | `npx visora-cli --version` | Print version number |
 

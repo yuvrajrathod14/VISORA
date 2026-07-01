@@ -21,7 +21,7 @@ import ora from 'ora';
 import { generatePatch } from './ai';
 import { applyPatch } from './diff';
 import { checkAndRunOnboarding } from './onboarding';
-import { runInit } from './init';
+import { runInit, runRemove } from './init.js';
 import express from 'express';
 import crypto from 'crypto';
 
@@ -418,6 +418,9 @@ if (args.includes('--help') || args.includes('-h')) showHelp();
 if (args.includes('--version') || args.includes('-v')) showVersion();
 if (args.includes('init') || args.includes('--init')) {
   await runInit(projectRoot);
+}
+if (args.includes('remove') || args.includes('--remove')) {
+  await runRemove(projectRoot);
 }
 if (args.includes('--status') || args.includes('-s')) showStatus();
 if (args.includes('--clear')) clearQueues();
