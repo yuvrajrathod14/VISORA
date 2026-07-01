@@ -43,14 +43,48 @@ export async function checkAndRunOnboarding(projectRoot: string, force: boolean 
   let envContent = '\n';
 
   if (provider === 'anthropic') {
-    const key = await password({ message: 'Enter your Anthropic API Key (sk-ant-...):', mask: '*' });
-    envContent += `ANTHROPIC_API_KEY=${key}\n`;
-  } else if (provider === 'openai') {
-    const key = await password({ message: 'Enter your OpenAI API Key (sk-proj-...):', mask: '*' });
-    envContent += `OPENAI_API_KEY=${key}\n`;
-  } else if (provider === 'gemini') {
-    const key = await password({ message: 'Enter your Gemini API Key:', mask: '*' });
-    envContent += `GEMINI_API_KEY=${key}\n`;
+    while (true) {
+      const key = await password({ message: 'Enter your Anthropic API Key (sk-ant-...):', mask: '*' });
+      console.log(chalk.gray('Validating key...'));
+      try {
+        const res = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
+          body: JSON.stringify({ model: 'claude-3-5-sonnet-20240620', max_tokens: 1, messages: [{role: 'user', content: 'hi'}] })
+        });
+        if (res.status === 401 || res.status === 403) {
+          console.log(chalk.red('✖ Invalid Anthropic API Key. Please try again.'));
+          continue;
+        }
+        envContent += `ANTHROPIC_API_KEY=${key}\n`;
+        break;
+      } catch (err: any) {
+        console.log(chalk.red(`✖ Network error while validating: ${err.message}`));
+      }
+    }
+  } else if (provider === 'openai' || provider === 'gemini') {
+    const isGemini = provider === 'gemini';
+    const baseUrl = isGemini ? 'https://generativelanguage.googleapis.com/v1beta/openai/models' : 'https://api.openai.com/v1/models';
+    const msg = isGemini ? 'Enter your Gemini API Key:' : 'Enter your OpenAI API Key (sk-proj-...):';
+    
+    while (true) {
+      const key = await password({ message: msg, mask: '*' });
+      console.log(chalk.gray('Validating key...'));
+      try {
+        const res = await fetch(baseUrl, {
+          headers: { 'Authorization': `Bearer ${key}` }
+        });
+        if (res.status === 401 || res.status === 403) {
+          console.log(chalk.red('✖ Invalid API Key. Please try again.'));
+          continue;
+        }
+        if (isGemini) envContent += `GEMINI_API_KEY=${key}\n`;
+        else envContent += `OPENAI_API_KEY=${key}\n`;
+        break;
+      } catch (err: any) {
+        console.log(chalk.red(`✖ Network error while validating: ${err.message}`));
+      }
+    }
   } else if (provider === 'ollama') {
     const url = await input({ message: 'Enter Ollama URL:', default: 'http://localhost:11434' });
     const model = await input({ message: 'Enter Ollama Model:', default: 'llama3' });
@@ -71,11 +105,28 @@ export async function checkAndRunOnboarding(projectRoot: string, force: boolean 
     if (provider === 'groq') { defaultUrl = 'https://api.groq.com/openai/v1'; defaultModel = 'llama3-70b-8192'; displayName = 'Groq'; }
     if (provider === 'custom_openai') { displayName = 'Custom API'; }
 
-    const key = await password({ message: `Enter your ${displayName} API Key:`, mask: '*' });
     const url = await input({ message: 'Enter API Base URL:', default: defaultUrl });
     const model = await input({ message: 'Enter Model Name:', default: defaultModel });
     
-    envContent += `OPENAI_API_KEY=${key}\nOPENAI_BASE_URL=${url}\nOPENAI_MODEL_NAME=${model}\nPROVIDER_DISPLAY_NAME=${displayName}\n`;
+    while (true) {
+      const key = await password({ message: `Enter your ${displayName} API Key:`, mask: '*' });
+      console.log(chalk.gray('Validating key...'));
+      try {
+        const res = await fetch(`${url}/models`, {
+          headers: { 'Authorization': `Bearer ${key}` }
+        });
+        if (res.status === 401 || res.status === 403) {
+          console.log(chalk.red(`✖ Invalid ${displayName} API Key. Please try again.`));
+          continue;
+        }
+        envContent += `OPENAI_API_KEY=${key}\nOPENAI_BASE_URL=${url}\nOPENAI_MODEL_NAME=${model}\nPROVIDER_DISPLAY_NAME=${displayName}\n`;
+        break;
+      } catch (err: any) {
+        console.log(chalk.yellow(`⚠ Could not reach ${url}/models. Saving anyway.`));
+        envContent += `OPENAI_API_KEY=${key}\nOPENAI_BASE_URL=${url}\nOPENAI_MODEL_NAME=${model}\nPROVIDER_DISPLAY_NAME=${displayName}\n`;
+        break;
+      }
+    }
   }
 
   const envPath = path.join(projectRoot, '.env');
