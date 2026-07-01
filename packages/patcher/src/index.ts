@@ -207,7 +207,7 @@ function printBanner() {
   console.log(BRAND(` \\___/ \\___/\\____/ \\___/\\_| \\_\\_| |_/`));
   console.log();
 
-  const providerDisplay = config?.provider ? `${config.provider}` : 'Not Configured';
+  const providerDisplay = getActiveProvider();
   const rootDisplay = projectRoot.length > 30 ? '...' + projectRoot.slice(-27) : projectRoot;
   
   const leftCol = [
@@ -480,12 +480,7 @@ await checkAndRunOnboarding(projectRoot, forceConfig);
 // ═══════════════════════════════════════════════════════════
 printBanner();
 
-const provider = getActiveProvider();
-console.log(`  ${DIM('Provider')}   ${SUCCESS(provider)}`);
-console.log(`  ${DIM('Root')}       ${INFO(projectRoot)}`);
-console.log();
-console.log(DIVIDER);
-console.log();
+
 
 let isIdle = true;
 console.log(DIM('  👀 Watching for instructions…\n'));
